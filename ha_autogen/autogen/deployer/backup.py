@@ -15,7 +15,7 @@ def _get_backup_dir() -> Path:
     """Return the backup storage directory."""
     if os.environ.get("AUTOGEN_DEV_MODE", "").lower() == "true":
         backup_dir = (
-            Path(__file__).resolve().parent.parent.parent / "tests" / "output" / "backups"
+            Path(__file__).resolve().parent.parent.parent.parent / "tests" / "output" / "backups"
         )
     else:
         backup_dir = Path("/data/backups")

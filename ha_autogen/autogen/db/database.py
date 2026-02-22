@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 def _get_db_path() -> str:
     """Return the database file path (production vs dev mode)."""
     if os.environ.get("AUTOGEN_DEV_MODE", "").lower() == "true":
-        db_dir = Path(__file__).resolve().parent.parent.parent / "data"
+        db_dir = Path(__file__).resolve().parent.parent.parent.parent / "data"
         db_dir.mkdir(exist_ok=True)
         return str(db_dir / "ha_autogen.db")
     db_dir = Path("/data")

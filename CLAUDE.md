@@ -9,87 +9,40 @@ The PRD is at `docs/HA_AutoGen_PRD.docx` — read it for full context on require
 ## Architecture
 
 ```
-ha-autogen/
+ha-autogen/                          # Repository root
 ├── CLAUDE.md
+├── README.md
+├── repository.yaml                  # HA add-on repository manifest
 ├── docs/
 │   └── HA_AutoGen_PRD.docx
-├── config.yaml                  # HA add-on manifest
-├── Dockerfile                   # Alpine-based Python image
-├── run.sh                       # Add-on entrypoint
-├── requirements.txt
-├── autogen/
-│   ├── __init__.py
-│   ├── main.py                  # FastAPI app, ingress entrypoint
-│   ├── context/                 # Context Engine
+├── ha_autogen/                      # Add-on directory (HA Supervisor reads this)
+│   ├── config.yaml                  # HA add-on manifest
+│   ├── Dockerfile                   # Alpine-based Python image
+│   ├── run.sh                       # Add-on entrypoint
+│   ├── requirements.txt
+│   ├── autogen/                     # Python package
 │   │   ├── __init__.py
-│   │   ├── engine.py            # Orchestrates all registry pulls
-│   │   ├── entities.py          # Entity registry via WS API
-│   │   ├── areas.py             # Area registry
-│   │   ├── devices.py           # Device registry
-│   │   ├── services.py          # Service registry
-│   │   ├── automations.py       # Existing automation configs
-│   │   ├── dashboards.py        # Existing Lovelace configs
-│   │   └── token_budget.py      # Context filtering & prioritisation
-│   ├── llm/                     # LLM Interface
-│   │   ├── __init__.py
-│   │   ├── base.py              # Abstract backend interface
-│   │   ├── ollama.py            # Ollama/local backend
-│   │   ├── anthropic.py         # Anthropic Claude API
-│   │   ├── openai_compat.py     # OpenAI-compatible API
-│   │   └── prompts/             # Prompt templates
-│   │       ├── system.py        # Base system prompt
-│   │       ├── automation.py    # Automation generation prompt
-│   │       ├── dashboard.py     # Dashboard generation prompt
-│   │       └── review.py        # Config review prompt
-│   ├── validator/               # Validation Pipeline
-│   │   ├── __init__.py
-│   │   ├── pipeline.py          # Orchestrates all checks
-│   │   ├── yaml_syntax.py       # YAML parse check
-│   │   ├── entity_refs.py       # Entity ID cross-check
-│   │   ├── service_calls.py     # Service domain/name validation
-│   │   ├── schema.py            # HA automation/Lovelace schema
-│   │   └── duplicates.py        # Functional overlap detection
-│   ├── reviewer/                # Configuration Review Engine
-│   │   ├── __init__.py
-│   │   ├── engine.py            # Review orchestration
-│   │   ├── automation_rules.py  # Best-practice rule definitions
-│   │   ├── dashboard_rules.py   # Dashboard analysis rules
-│   │   └── models.py            # Finding severity levels, output models
-│   ├── deployer/                # Deploy & Rollback
-│   │   ├── __init__.py
-│   │   ├── engine.py            # Write configs, trigger reloads
-│   │   ├── backup.py            # Pre-deploy snapshots
-│   │   └── rollback.py          # Revert to previous config
-│   ├── db/                      # Persistence
-│   │   ├── __init__.py
-│   │   ├── database.py          # SQLite setup, migrations
-│   │   └── models.py            # Generation history, review results
-│   └── api/                     # FastAPI routes
-│       ├── __init__.py
-│       ├── generate.py          # POST /api/generate
-│       ├── review.py            # POST /api/review
-│       ├── deploy.py            # POST /api/deploy, POST /api/rollback
-│       ├── history.py           # GET /api/history
-│       ├── context.py           # GET /api/context (entity browser)
-│       └── settings.py          # GET/PUT /api/settings
-├── frontend/                    # Web UI (served via ingress)
-│   ├── index.html
-│   ├── static/
-│   │   ├── css/
-│   │   └── js/
-│   └── components/              # UI components (htmx or React TBD)
+│   │   ├── main.py                  # FastAPI app, ingress entrypoint
+│   │   ├── context/                 # Context Engine
+│   │   ├── llm/                     # LLM Interface + prompts
+│   │   ├── validator/               # Validation Pipeline
+│   │   ├── reviewer/                # Configuration Review Engine
+│   │   ├── deployer/                # Deploy & Rollback
+│   │   ├── explorer/                # Automation opportunity analysis
+│   │   ├── db/                      # SQLite persistence
+│   │   └── api/                     # FastAPI routes
+│   └── frontend/
+│       └── index.html               # Single-page htmx UI
 └── tests/
     ├── conftest.py
+    ├── fixtures/                    # Sample HA entity/automation data
     ├── test_context/
     ├── test_llm/
     ├── test_validator/
     ├── test_reviewer/
     ├── test_deployer/
-    └── fixtures/                # Sample HA entity/automation data
-        ├── entity_registry.json
-        ├── area_registry.json
-        ├── sample_automations.yaml
-        └── sample_lovelace.yaml
+    ├── test_explorer/
+    └── test_templates/
 ```
 
 ## Tech Stack

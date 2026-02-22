@@ -1,7 +1,11 @@
 """Shared test fixtures and configuration."""
 
 import os
+import sys
 from pathlib import Path
+
+# Add ha_autogen/ to Python path so `from autogen.xxx` imports work
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "ha_autogen"))
 
 import pytest
 

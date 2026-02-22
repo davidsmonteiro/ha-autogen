@@ -21,7 +21,7 @@ def _get_config_dir() -> Path:
     """Return the HA config directory path."""
     if os.environ.get("AUTOGEN_DEV_MODE", "").lower() == "true":
         output_dir = (
-            Path(__file__).resolve().parent.parent.parent / "tests" / "output"
+            Path(__file__).resolve().parent.parent.parent.parent / "tests" / "output"
         )
         output_dir.mkdir(exist_ok=True)
         return output_dir

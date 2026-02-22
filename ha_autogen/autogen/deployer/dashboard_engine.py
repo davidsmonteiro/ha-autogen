@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def _get_output_dir() -> Path:
     """Return the output directory for dev mode dashboard writes."""
-    output_dir = Path(__file__).resolve().parent.parent.parent / "tests" / "output"
+    output_dir = Path(__file__).resolve().parent.parent.parent.parent / "tests" / "output"
     output_dir.mkdir(exist_ok=True)
     return output_dir
 

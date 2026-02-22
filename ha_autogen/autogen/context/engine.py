@@ -36,7 +36,7 @@ from autogen.context.entities import (
 
 logger = logging.getLogger(__name__)
 
-FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent / "tests" / "fixtures"
+FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent.parent / "tests" / "fixtures"
 
 
 class ContextEngine:
