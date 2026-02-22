@@ -70,22 +70,22 @@ async def test_device_area_resolution() -> None:
     await engine.refresh()
 
     # cover.brisa_escritorio has area_id=null in the entity registry,
-    # but its device (e76a785...) has area_id="escritorio".
+    # but its device has area_id="office".
     # After resolution, the entity should have area_id set.
     brisa = next(
         (e for e in engine.entities if e.entity_id == "cover.brisa_escritorio"),
         None,
     )
     assert brisa is not None
-    assert brisa.area_id == "escritorio"
+    assert brisa.area_id == "office"
 
-    # Same for light.office_led_desk -> device f184f45... -> escritorio
+    # Same for light.office_led_desk -> device -> office
     led = next(
         (e for e in engine.entities if e.entity_id == "light.office_led_desk"),
         None,
     )
     assert led is not None
-    assert led.area_id == "escritorio"
+    assert led.area_id == "office"
 
 
 @pytest.mark.asyncio
@@ -95,7 +95,7 @@ async def test_room_expansion() -> None:
     await engine.refresh()
 
     # "office lights" should directly match light.office_lights_l1.
-    # That entity is in the "escritorio" area (via device).
+    # That entity is in the "office" area (via device).
     # Room expansion should pull in cover.brisa_escritorio and
     # light.office_led_desk from the same room.
     filtered = engine.filter_entities_by_request("office lights")
@@ -103,8 +103,8 @@ async def test_room_expansion() -> None:
 
     assert "light.office_lights_l1" in entity_ids
     assert "cover.brisa_escritorio" in entity_ids, (
-        "Room expansion should include cover.brisa_escritorio from escritorio area"
+        "Room expansion should include cover.brisa_escritorio from office area"
     )
     assert "light.office_led_desk" in entity_ids, (
-        "Room expansion should include light.office_led_desk from escritorio area"
+        "Room expansion should include light.office_led_desk from office area"
     )

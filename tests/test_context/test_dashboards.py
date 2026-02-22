@@ -24,8 +24,8 @@ def test_fixture_has_expected_views() -> None:
     views = result["views"]
     assert len(views) == 3
     titles = {v["title"] for v in views}
-    assert "Sala de Estar" in titles
-    assert "Cozinha" in titles
+    assert "Living Room" in titles
+    assert "Kitchen" in titles
 
 
 def test_fixture_views_have_cards() -> None:

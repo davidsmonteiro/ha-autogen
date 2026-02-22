@@ -1,7 +1,7 @@
 {
   "views": [
     {
-      "title": "Sala de Estar",
+      "title": "Living Room",
       "path": "living-room",
       "cards": [
         {
@@ -30,7 +30,7 @@
       ]
     },
     {
-      "title": "Escritório",
+      "title": "Office",
       "path": "office",
       "cards": [
         {
@@ -46,7 +46,7 @@
       ]
     },
     {
-      "title": "Cozinha",
+      "title": "Kitchen",
       "path": "kitchen",
       "cards": [
         {
@@ -73,28 +73,14 @@
         },
         {
           "type": "entities",
-          "title": "More Kitchen",
+          "title": "Appliances",
           "entities": [
             "switch.kitchen_coffee_maker"
           ]
         },
         {
           "type": "entities",
-          "title": "Appliances",
-          "entities": [
-            "sensor.kitchen_power_usage"
-          ]
-        },
-        {
-          "type": "entities",
-          "title": "Water",
-          "entities": [
-            "sensor.kitchen_water_leak"
-          ]
-        },
-        {
-          "type": "entities",
-          "title": "Extras",
+          "title": "Safety",
           "entities": [
             "binary_sensor.kitchen_motion"
           ]
@@ -104,13 +90,6 @@
           "title": "Status",
           "entities": [
             "binary_sensor.kitchen_window"
-          ]
-        },
-        {
-          "type": "entities",
-          "title": "More Status",
-          "entities": [
-            "sensor.kitchen_air_quality"
           ]
         }
       ]
