@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1
+
+- **Multi-dashboard deploy**: Dashboard deploy no longer overwrites the default dashboard — users choose to create a new dashboard, deploy to an existing one, or explicitly target the default
+- New `GET /api/dashboards` endpoint lists all available Lovelace dashboards
+- Dashboard selector dialog with "Create New Dashboard" as the safe default
+- Support for HA WebSocket API: `lovelace/dashboards/list`, `lovelace/dashboards/create`, `lovelace/config` with `url_path`
+
 ## 0.2.0
 
 - **Plan Mode**: Iterative plan-then-generate flow — LLM proposes a structured plan (entities, triggers, conditions, actions, assumptions, questions) that you review, edit, and refine before YAML generation

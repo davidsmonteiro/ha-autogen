@@ -12,6 +12,23 @@ import aiohttp
 logger = logging.getLogger(__name__)
 
 
+async def fetch_dashboard_list(
+    ws: aiohttp.ClientWebSocketResponse,
+    msg_id: int,
+) -> list[dict[str, Any]]:
+    """Fetch the list of all storage-mode dashboards via WS.
+
+    Returns a list of dicts with url_path, title, icon, etc.
+    The default dashboard is NOT included in this list (it has no url_path).
+    """
+    await ws.send_json({"id": msg_id, "type": "lovelace/dashboards/list"})
+    resp = await ws.receive_json()
+    if not resp.get("success"):
+        logger.warning("Dashboard list fetch failed: %s", resp)
+        return []
+    return resp.get("result", [])
+
+
 async def fetch_dashboards(
     ws: aiohttp.ClientWebSocketResponse,
     msg_id: int,
@@ -21,6 +38,20 @@ async def fetch_dashboards(
     resp = await ws.receive_json()
     if not resp.get("success"):
         logger.warning("Dashboard config fetch failed: %s", resp)
+        return {}
+    return resp.get("result", {})
+
+
+async def fetch_dashboard_config(
+    ws: aiohttp.ClientWebSocketResponse,
+    msg_id: int,
+    url_path: str,
+) -> dict[str, Any]:
+    """Fetch a specific dashboard config by url_path via WS."""
+    await ws.send_json({"id": msg_id, "type": "lovelace/config", "url_path": url_path})
+    resp = await ws.receive_json()
+    if not resp.get("success"):
+        logger.warning("Dashboard config fetch for '%s' failed: %s", url_path, resp)
         return {}
     return resp.get("result", {})
 

@@ -117,7 +117,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(
     title="HA AutoGen",
-    version="0.2.0",
+    version="0.2.1",
     lifespan=lifespan,
 )
 

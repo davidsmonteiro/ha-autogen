@@ -305,6 +305,13 @@
         .confirm-dialog h3 { font-size: 1rem; margin-bottom: 0.75rem; color: var(--warning); }
         .confirm-dialog p { font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5; }
         .confirm-dialog .btn-row { justify-content: flex-end; }
+
+        /* Dashboard deploy selector */
+        .dashboard-selector select { width: 100%; padding: 0.5rem; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; margin-bottom: 0.75rem; }
+        .dashboard-selector select:focus { outline: none; border-color: var(--accent); }
+        .dashboard-selector input[type="text"] { width: 100%; padding: 0.5rem; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; margin-bottom: 0.75rem; }
+        .dashboard-selector input[type="text"]:focus { outline: none; border-color: var(--accent); }
+        .dashboard-selector label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.3rem; }
     </style>
 </head>
 <body>
@@ -541,18 +548,76 @@
 
         // -- Deploy --
         function deployAutomation() { doDeploy("/api/deploy", "Deploy to HA"); }
-        function deployDashboard() { doDeploy("/api/deploy-dashboard", "Deploy Dashboard"); }
 
-        function doDeploy(endpoint, label) {
+        function deployDashboard() {
+            // Show dashboard selector dialog
+            var overlay = document.createElement("div");
+            overlay.className = "confirm-overlay";
+            overlay.innerHTML =
+                '<div class="confirm-dialog dashboard-selector">' +
+                '<h3 style="color:var(--accent)">Deploy Dashboard</h3>' +
+                '<p style="font-size:0.85rem">Choose where to deploy this dashboard:</p>' +
+                '<label for="dash-target">Target Dashboard</label>' +
+                '<select id="dash-target" onchange="onDashTargetChange()">' +
+                '<option value="new">Create New Dashboard</option>' +
+                '<option value="">Default Dashboard (Overview)</option>' +
+                '</select>' +
+                '<div id="dash-new-title-row"><label for="dash-new-title">Dashboard Title</label>' +
+                '<input type="text" id="dash-new-title" placeholder="e.g., Climate Controls" value="AutoGen Dashboard"></div>' +
+                '<div class="btn-row" style="justify-content:flex-end">' +
+                '<button class="btn btn-secondary btn-sm" onclick="this.closest(\'.confirm-overlay\').remove()">Cancel</button>' +
+                '<button class="btn btn-success btn-sm" id="dash-deploy-confirm" onclick="confirmDashboardDeploy()">Deploy</button></div></div>';
+            document.body.appendChild(overlay);
+
+            // Load existing dashboards into the select
+            fetch(ingressPath + "/api/dashboards")
+            .then(function(r) { return r.json(); })
+            .then(function(dashboards) {
+                var sel = document.getElementById("dash-target");
+                if (!sel) return;
+                for (var i = 0; i < dashboards.length; i++) {
+                    var d = dashboards[i];
+                    if (d.url_path === null) continue; // skip default, already added
+                    var opt = document.createElement("option");
+                    opt.value = d.url_path;
+                    opt.textContent = d.title + " (/" + d.url_path + ")";
+                    sel.appendChild(opt);
+                }
+            })
+            .catch(function() {});
+        }
+
+        function onDashTargetChange() {
+            var sel = document.getElementById("dash-target");
+            var row = document.getElementById("dash-new-title-row");
+            if (sel && row) {
+                row.style.display = sel.value === "new" ? "" : "none";
+            }
+        }
+
+        function confirmDashboardDeploy() {
+            var sel = document.getElementById("dash-target");
+            var titleInput = document.getElementById("dash-new-title");
+            var target = sel ? sel.value : "new";
+            var newTitle = titleInput ? titleInput.value.trim() : "";
+            // Remove dialog
+            var overlay = sel ? sel.closest(".confirm-overlay") : null;
+            if (overlay) overlay.remove();
+            doDeploy("/api/deploy-dashboard", "Deploy Dashboard", { target: target, new_title: newTitle });
+        }
+
+        function doDeploy(endpoint, label, extra) {
             var btn = document.getElementById("deploy-btn");
             var status = document.getElementById("deploy-status");
             if (!btn || !cmEditor) return;
             var yaml = cmEditor.getValue();
             if (!yaml.trim()) return;
             btn.disabled = true; btn.textContent = "Deploying..."; status.innerHTML = "";
+            var payload = { yaml_content: yaml, generation_id: currentGenerationId || null };
+            if (extra) { for (var k in extra) { payload[k] = extra[k]; } }
             fetch(ingressPath + endpoint, {
                 method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ yaml_content: yaml, generation_id: currentGenerationId || null })
+                body: JSON.stringify(payload)
             })
             .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
             .then(function(res) {
