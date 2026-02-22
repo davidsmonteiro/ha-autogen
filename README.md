@@ -49,10 +49,11 @@ python -m venv .venv
 # source .venv/bin/activate  # Linux/macOS
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -r ha_autogen/requirements.txt
 
 # Start dev server with mock HA data
 $env:AUTOGEN_DEV_MODE="true"
+$env:PYTHONPATH="ha_autogen"
 uvicorn autogen.main:app --reload --port 8099
 ```
 
