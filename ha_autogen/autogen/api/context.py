@@ -11,6 +11,11 @@ from autogen.deps import get_context_engine
 router = APIRouter(prefix="/api/context", tags=["context"])
 
 
+class EntityItem(BaseModel):
+    entity_id: str
+    name: str
+
+
 class AreaItem(BaseModel):
     area_id: str
     name: str
@@ -24,6 +29,17 @@ class AutomationItem(BaseModel):
 class ViewItem(BaseModel):
     path: str
     title: str
+
+
+@router.get("/entities", response_model=list[EntityItem])
+async def list_entities(
+    context_engine: ContextEngine = Depends(get_context_engine),
+) -> list[EntityItem]:
+    """Return all active entity IDs and names for autocomplete."""
+    return [
+        EntityItem(entity_id=e.entity_id, name=e.name or e.entity_id)
+        for e in context_engine.get_active_entities()
+    ]
 
 
 @router.get("/areas", response_model=list[AreaItem])

@@ -9,8 +9,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/theme/material-darker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/merge/merge.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/hint/show-hint.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/yaml/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/hint/show-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/merge/merge.min.js"></script>
     <style>
@@ -123,6 +125,12 @@
         /* CodeMirror */
         .CodeMirror { height: auto; min-height: 80px; font-size: 0.85rem; line-height: 1.6; border: none; }
         .cm-s-material-darker.CodeMirror { background: #1a1a2e; }
+        .CodeMirror-hints {
+            background: var(--surface); border: 1px solid var(--border); color: var(--text);
+            font-size: 0.82rem; max-height: 200px; z-index: 100;
+        }
+        .CodeMirror-hint { padding: 3px 8px; color: var(--text); }
+        .CodeMirror-hint-active { background: var(--accent); color: #fff; }
 
         /* Validation badges */
         .validation { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; }
@@ -354,6 +362,7 @@
         var cachedAreas = null;
         var cachedAutomations = null;
         var cachedViews = null;
+        var cachedEntities = null;
 
         // -- Tab navigation --
         document.querySelectorAll(".tab-btn").forEach(function(btn) {
@@ -437,10 +446,31 @@
                 '<div class="meta">' + metaParts.join(" | ") + '</div>';
         });
 
+        function createYamlEditor(textarea) {
+            var ed = CodeMirror.fromTextArea(textarea, {
+                mode: "yaml", theme: "material-darker", lineNumbers: true,
+                readOnly: false, lineWrapping: true, viewportMargin: Infinity,
+                hintOptions: { hint: entityHint, completeSingle: false }
+            });
+            ed.on("inputRead", function(cm, change) {
+                if (change.origin === "+input" && /[a-z0-9_.]/.test(change.text[0])) {
+                    var cur = cm.getCursor();
+                    var line = cm.getLine(cur.line);
+                    var start = cur.ch;
+                    while (start > 0 && /[a-z0-9_.]/.test(line.charAt(start - 1))) start--;
+                    var word = line.slice(start, cur.ch);
+                    if (word.length >= 2 && cachedEntities && cachedEntities.length) {
+                        cm.showHint({ hint: entityHint, completeSingle: false });
+                    }
+                }
+            });
+            return ed;
+        }
+
         document.body.addEventListener("htmx:afterSwap", function(evt) {
             var ta = document.getElementById("yaml-editor");
             if (!ta) return;
-            cmEditor = CodeMirror.fromTextArea(ta, { mode: "yaml", theme: "material-darker", lineNumbers: true, readOnly: false, lineWrapping: true, viewportMargin: Infinity });
+            cmEditor = createYamlEditor(ta);
         });
 
         // -- Deploy --
@@ -523,7 +553,7 @@
                     '<div class="btn-row"><button class="btn btn-success btn-sm" onclick="' + fn + '" id="deploy-btn">' + dl + '</button><span id="deploy-status"></span></div>' +
                     '<div class="meta">Mode: ' + ml + ' | Model: ' + escapeHtml(data.model||"") + ' | Status: ' + escapeHtml(data.status||"") + '</div>';
                 var ta = document.getElementById("yaml-editor");
-                if (ta) cmEditor = CodeMirror.fromTextArea(ta, { mode: "yaml", theme: "material-darker", lineNumbers: true, readOnly: false, lineWrapping: true, viewportMargin: Infinity });
+                if (ta) cmEditor = createYamlEditor(ta);
             });
         }
 
@@ -556,6 +586,42 @@
                 areas.forEach(function(a) { sel.innerHTML += '<option value="' + escapeHtml(a.area_id) + '">' + escapeHtml(a.name) + '</option>'; });
                 sel.value = val;
             });
+        }
+
+        // -- Entity autocomplete for YAML editor --
+        function loadEntities() {
+            if (!cachedEntities) {
+                fetch(ingressPath + "/api/context/entities").then(function(r){return r.json();}).then(function(data) {
+                    cachedEntities = data;
+                }).catch(function(){});
+            }
+        }
+        loadEntities();
+
+        function entityHint(editor) {
+            if (!cachedEntities || !cachedEntities.length) return;
+            var cur = editor.getCursor();
+            var line = editor.getLine(cur.line);
+            // Walk backwards from cursor to find the start of the current word
+            var end = cur.ch;
+            var start = end;
+            while (start > 0 && /[a-z0-9_.]/.test(line.charAt(start - 1))) start--;
+            var word = line.slice(start, end).toLowerCase();
+            if (word.length < 2) return;
+            var matches = [];
+            for (var i = 0; i < cachedEntities.length; i++) {
+                var e = cachedEntities[i];
+                if (e.entity_id.toLowerCase().indexOf(word) !== -1 ||
+                    (e.name && e.name.toLowerCase().indexOf(word) !== -1)) {
+                    matches.push({
+                        text: e.entity_id,
+                        displayText: e.entity_id + (e.name && e.name !== e.entity_id ? "  (" + e.name + ")" : "")
+                    });
+                }
+                if (matches.length >= 30) break;
+            }
+            if (!matches.length) return;
+            return { list: matches, from: CodeMirror.Pos(cur.line, start), to: CodeMirror.Pos(cur.line, end) };
         }
 
         // -- Review tab --
