@@ -162,6 +162,7 @@ def check_security_concerns(automation: dict) -> list[ReviewFinding]:
                     automation_alias=_auto_alias(automation),
                     title=f"Sensitive domain without adequate guards: {', '.join(sorted(sensitive_found))}",
                     description=desc,
+                    current_yaml=_dump_yaml(action),
                 )
             )
     return findings
@@ -203,6 +204,7 @@ def check_deprecated_patterns(automation: dict) -> list[ReviewFinding]:
                         f"Domain-specific services are preferred for clarity and reliability."
                         f"{suggestion}"
                     ),
+                    current_yaml=_dump_yaml(action),
                 )
             )
     return findings

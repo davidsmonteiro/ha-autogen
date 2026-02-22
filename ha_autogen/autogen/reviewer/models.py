@@ -33,6 +33,7 @@ class FindingCategory(str, Enum):
 class ReviewFinding(BaseModel):
     """A single finding from the review process."""
 
+    finding_id: str = ""
     severity: FindingSeverity
     category: FindingCategory
     automation_id: str = ""

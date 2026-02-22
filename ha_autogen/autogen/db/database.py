@@ -22,7 +22,7 @@ def _get_db_path() -> str:
     return str(db_dir / "ha_autogen.db")
 
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 MIGRATIONS: dict[int, list[str]] = {
     1: [
@@ -94,6 +94,41 @@ MIGRATIONS: dict[int, list[str]] = {
         )
         """,
         "UPDATE schema_version SET version = 3",
+    ],
+    4: [
+        """
+        CREATE TABLE IF NOT EXISTS plans (
+            id                TEXT PRIMARY KEY,
+            request           TEXT NOT NULL,
+            mode              TEXT NOT NULL DEFAULT 'automation',
+            plan_json         TEXT NOT NULL DEFAULT '{}',
+            context_block     TEXT DEFAULT '',
+            model             TEXT DEFAULT '',
+            prompt_tokens     INTEGER DEFAULT 0,
+            completion_tokens INTEGER DEFAULT 0,
+            status            TEXT DEFAULT 'pending',
+            generation_id     TEXT,
+            iteration         INTEGER DEFAULT 1,
+            created_at        TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at        TEXT NOT NULL DEFAULT (datetime('now')),
+            FOREIGN KEY (generation_id) REFERENCES generations(id)
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS fix_applications (
+            id              TEXT PRIMARY KEY,
+            review_id       TEXT NOT NULL,
+            finding_id      TEXT NOT NULL,
+            fix_type        TEXT NOT NULL DEFAULT 'quick',
+            fix_yaml        TEXT NOT NULL,
+            automation_id   TEXT,
+            status          TEXT DEFAULT 'applied',
+            applied_at      TEXT NOT NULL DEFAULT (datetime('now')),
+            rolled_back_at  TEXT,
+            FOREIGN KEY (review_id) REFERENCES reviews(id)
+        )
+        """,
+        "UPDATE schema_version SET version = 4",
     ],
 }
 

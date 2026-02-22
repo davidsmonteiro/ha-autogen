@@ -24,6 +24,7 @@ from autogen.llm.ollama import OllamaBackend
 from autogen.llm.openai_compat import OpenAICompatBackend
 from autogen.explorer.engine import ExplorerEngine
 from autogen.llm.prompts.templates import TemplateStore
+from autogen.planner.engine import PlannerEngine
 from autogen.reviewer.engine import ReviewEngine
 
 logger = logging.getLogger(__name__)
@@ -95,6 +96,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Init explorer engine
     deps._explorer_engine = ExplorerEngine(deps._llm_backend)
 
+    # Init planner engine
+    deps._planner_engine = PlannerEngine(deps._llm_backend)
+
     yield
 
     # Shutdown
@@ -108,20 +112,23 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     deps._review_engine = None
     deps._template_store = None
     deps._explorer_engine = None
+    deps._planner_engine = None
 
 
 app = FastAPI(
     title="HA AutoGen",
-    version="0.1.0",
+    version="0.2.0",
     lifespan=lifespan,
 )
 
 from autogen.api.explore import router as explore_router
+from autogen.api.plan import router as plan_router
 from autogen.api.settings import router as settings_router
 
 app.include_router(context_router)
 app.include_router(explore_router)
 app.include_router(generate_router)
+app.include_router(plan_router)
 app.include_router(deploy_router)
 app.include_router(history_router)
 app.include_router(review_router)

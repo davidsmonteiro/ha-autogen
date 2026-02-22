@@ -248,6 +248,63 @@
         .complexity-advanced { background: rgba(233,30,99,0.15); color: var(--critical); }
         .category-badge { background: rgba(3,169,244,0.1); color: var(--accent); }
         .section-title { font-size: 1rem; font-weight: 600; margin: 1rem 0 0.5rem 0; }
+
+        /* Plan Mode */
+        .btn-group { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+        .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--surface-hover); }
+        .plan-panel { border: 1px solid var(--border); border-radius: 6px; margin-top: 1.5rem; background: var(--surface); overflow: hidden; }
+        .plan-panel-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(3,169,244,0.05); }
+        .plan-panel-header h3 { font-size: 0.95rem; margin: 0; }
+        .plan-section { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); position: relative; }
+        .plan-section:last-child { border-bottom: none; }
+        .plan-section-title { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 0.03em; }
+        .entity-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .entity-chip { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.6rem; border-radius: 16px; font-size: 0.78rem; background: var(--bg); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
+        .entity-chip:hover { border-color: var(--accent); }
+        .entity-chip.deselected { opacity: 0.4; text-decoration: line-through; }
+        .entity-chip .role-badge { font-size: 0.65rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 600; text-transform: uppercase; }
+        .role-trigger { background: rgba(76,175,80,0.2); color: var(--success); }
+        .role-condition { background: rgba(255,152,0,0.2); color: var(--warning); }
+        .role-action { background: rgba(3,169,244,0.2); color: var(--accent); }
+        .role-context { background: rgba(136,136,136,0.2); color: var(--text-muted); }
+        .role-display { background: rgba(156,39,176,0.2); color: var(--purple); }
+        .plan-textarea { width: 100%; min-height: 60px; resize: vertical; padding: 0.5rem; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem; font-family: inherit; line-height: 1.5; }
+        .plan-textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
+        .assumption-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0; font-size: 0.85rem; }
+        .assumption-item input[type="checkbox"] { width: auto; flex-shrink: 0; }
+        .question-item { margin-bottom: 0.5rem; }
+        .question-item .q-label { font-size: 0.85rem; font-weight: 500; margin-bottom: 0.25rem; }
+        .question-item input { width: 100%; padding: 0.4rem 0.5rem; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem; }
+        .suggestion-inline { display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0; font-size: 0.85rem; }
+        .suggestion-inline .btn { padding: 0.2rem 0.5rem; font-size: 0.75rem; }
+        .plan-actions { padding: 0.75rem 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .plan-meta { padding: 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--border); }
+        .entity-add-row { display: flex; gap: 0.4rem; margin-top: 0.5rem; align-items: center; position: relative; }
+        .entity-add-row input { flex: 1; padding: 0.35rem 0.5rem; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; font-size: 0.8rem; }
+        .entity-add-row input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+        .entity-add-row select { padding: 0.35rem 0.4rem; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem; }
+        .entity-dropdown { position: absolute; top: 100%; left: 0; right: 80px; max-height: 250px; overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; z-index: 50; display: none; }
+        .entity-dropdown.open { display: block; }
+        .entity-dropdown-item { padding: 0.35rem 0.5rem; font-size: 0.8rem; cursor: pointer; display: flex; justify-content: space-between; }
+        .entity-dropdown-item:hover { background: var(--accent); color: white; }
+        .entity-dropdown-item small { color: var(--text-muted); }
+        .entity-dropdown-item:hover small { color: rgba(255,255,255,0.7); }
+        .entity-dropdown-item.active { background: var(--accent); color: white; }
+        .entity-dropdown-item.active small { color: rgba(255,255,255,0.7); }
+
+        /* Quick Fix */
+        .fix-badge { font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 3px; font-weight: 600; }
+        .fix-quick { background: rgba(76,175,80,0.15); color: var(--success); }
+        .fix-guided { background: rgba(255,152,0,0.15); color: var(--warning); }
+        .finding-actions { display: flex; gap: 0.4rem; margin-top: 0.5rem; align-items: center; }
+        .finding-card.fix-applied { border-left: 3px solid var(--success); }
+        .fix-all-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 1rem; }
+        .confirm-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .confirm-dialog { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; max-width: 420px; width: 90%; }
+        .confirm-dialog h3 { font-size: 1rem; margin-bottom: 0.75rem; color: var(--warning); }
+        .confirm-dialog p { font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5; }
+        .confirm-dialog .btn-row { justify-content: flex-end; }
     </style>
 </head>
 <body>
@@ -276,9 +333,13 @@
                     <label for="request" id="request-label">Describe the automation you want:</label>
                     <textarea id="request" name="request" placeholder="e.g., Turn on the living room lights when motion is detected after sunset" required minlength="5"></textarea>
                 </div>
-                <button type="submit" class="btn" id="generate-btn" hx-post="__INGRESS_PATH__/api/generate" hx-target="#output" hx-indicator="#gen-form">Generate Automation</button>
-                <div class="spinner" id="gen-spinner">Generating... this may take a moment.</div>
+                <div class="btn-group">
+                    <button type="button" class="btn" id="plan-btn" onclick="startPlan()">Plan &amp; Generate</button>
+                    <button type="submit" class="btn btn-secondary" id="generate-btn" hx-post="__INGRESS_PATH__/api/generate" hx-target="#output" hx-indicator="#gen-form">Generate Directly</button>
+                </div>
+                <div class="spinner" id="gen-spinner">Working... this may take a moment.</div>
             </form>
+            <div id="plan-container"></div>
             <div id="output"></div>
         </div>
 
@@ -393,20 +454,25 @@
                 document.querySelector("label[for='mode-dashboard']").classList.add("active-mode");
                 document.getElementById("request-label").textContent = "Describe the dashboard you want:";
                 document.getElementById("request").placeholder = "e.g., Create a dashboard for all rooms with temperature sensors and lights";
-                document.getElementById("generate-btn").textContent = "Generate Dashboard";
+                document.getElementById("generate-btn").textContent = "Generate Directly";
+                document.getElementById("plan-btn").textContent = "Plan & Generate";
             } else {
                 document.getElementById("mode-automation").checked = true;
                 document.querySelector("label[for='mode-automation']").classList.add("active-mode");
                 document.getElementById("request-label").textContent = "Describe the automation you want:";
                 document.getElementById("request").placeholder = "e.g., Turn on the living room lights when motion is detected after sunset";
-                document.getElementById("generate-btn").textContent = "Generate Automation";
+                document.getElementById("generate-btn").textContent = "Generate Directly";
+                document.getElementById("plan-btn").textContent = "Plan & Generate";
             }
         }
 
         // -- Generate tab: htmx intercept --
         document.body.addEventListener("htmx:configRequest", function(evt) {
             if (evt.detail.path && evt.detail.path.indexOf("/api/generate") !== -1) {
-                if (evt.detail.parameters) evt.detail.parameters.mode = currentGenMode;
+                if (evt.detail.parameters) {
+                    evt.detail.parameters.mode = currentGenMode;
+                    evt.detail.parameters.skip_plan = true;
+                }
             }
         });
 
@@ -492,15 +558,15 @@
             .then(function(res) {
                 if (res.ok && res.data.success) {
                     btn.textContent = "Deployed"; btn.style.opacity = "0.7";
-                    status.innerHTML = '<span class="success-msg" style="padding:0.3rem 0.6rem;margin:0">' + escapeHtml(res.data.message) + '</span>';
+                    status.innerHTML = '<div class="success-msg" style="padding:0.3rem 0.6rem;margin:0">' + escapeHtml(res.data.message) + '</div>';
                 } else {
                     btn.textContent = label; btn.disabled = false;
-                    status.innerHTML = '<span class="error-msg" style="padding:0.3rem 0.6rem;margin:0">' + escapeHtml(res.data.detail || "Deploy failed") + '</span>';
+                    status.innerHTML = '<div class="error-msg" style="padding:0.3rem 0.6rem;margin:0">' + escapeHtml(res.data.detail || "Deploy failed") + '</div>';
                 }
             })
             .catch(function() {
                 btn.textContent = label; btn.disabled = false;
-                status.innerHTML = '<span class="error-msg" style="padding:0.3rem 0.6rem;margin:0">Network error</span>';
+                status.innerHTML = '<div class="error-msg" style="padding:0.3rem 0.6rem;margin:0">Network error</div>';
             });
         }
 
@@ -677,37 +743,6 @@
             .catch(function(e) { loading.classList.remove("active"); btn.disabled = false; results.innerHTML = '<div class="error-msg">Network error</div>'; });
         }
 
-        function renderReviewResults(data) {
-            var results = document.getElementById("review-results");
-            var html = '<div class="review-summary">' + escapeHtml(data.summary || "No summary") + '</div>';
-            if (!data.findings || data.findings.length === 0) { html += '<div class="empty-state">No issues found!</div>'; results.innerHTML = html; return; }
-
-            var groups = { critical: [], warning: [], suggestion: [], info: [] };
-            data.findings.forEach(function(f) { var s = f.severity || "info"; (groups[s] || groups.info).push(f); });
-
-            var sevConfig = { critical: { label: "Critical", cls: "badge-critical", icon: "!!" }, warning: { label: "Warnings", cls: "badge-warning", icon: "!" }, suggestion: { label: "Suggestions", cls: "badge-suggestion", icon: "?" }, info: { label: "Info", cls: "badge-info", icon: "i" } };
-            ["critical","warning","suggestion","info"].forEach(function(sev) {
-                if (groups[sev].length === 0) return;
-                var c = sevConfig[sev];
-                html += '<div class="findings-group"><div class="findings-group-title"><span class="badge ' + c.cls + '">' + c.icon + '</span> ' + c.label + ' (' + groups[sev].length + ')</div>';
-                groups[sev].forEach(function(f) {
-                    html += '<div class="finding-card"><div class="finding-card-header"><span class="finding-title">' + escapeHtml(f.title) + '</span><span class="badge badge-info" style="font-size:0.65rem">' + escapeHtml(f.category) + '</span></div>';
-                    if (f.automation_alias || f.automation_id) html += '<div class="finding-automation">Automation: ' + escapeHtml(f.automation_alias || f.automation_id) + '</div>';
-                    html += '<div class="finding-desc">' + escapeHtml(f.description) + '</div>';
-                    if (f.suggested_yaml) html += '<div class="finding-fix">' + escapeHtml(f.suggested_yaml) + '</div>';
-                    html += '</div>';
-                });
-                html += '</div>';
-            });
-
-            var meta = [];
-            if (data.model) meta.push("Model: " + escapeHtml(data.model));
-            if (data.automations_reviewed) meta.push("Automations: " + data.automations_reviewed);
-            if (data.dashboards_reviewed) meta.push("Dashboards: " + data.dashboards_reviewed);
-            if (meta.length) html += '<div class="meta">' + meta.join(" | ") + '</div>';
-            results.innerHTML = html;
-        }
-
         // -- Explore tab --
         function runExplore() {
             var btn = document.getElementById("explore-btn");
@@ -857,6 +892,583 @@
             if (!confirm("Delete this template?")) return;
             fetch(ingressPath + "/api/templates/" + id, { method: "DELETE" })
             .then(function() { loadTemplates(); });
+        }
+
+        // -- Plan Mode --
+        var currentPlanId = null;
+        var currentPlanData = null;
+        var currentPlanContext = null;
+        var currentReviewId = null;
+        var currentReviewFindings = null;
+
+        function startPlan() {
+            var request = document.getElementById("request").value.trim();
+            if (!request || request.length < 5) { alert("Please describe what you want (at least 5 characters)."); return; }
+            var btn = document.getElementById("plan-btn");
+            var spinner = document.getElementById("gen-spinner");
+            btn.disabled = true; spinner.style.display = "block";
+            addedPlanEntities = [];
+            document.getElementById("plan-container").innerHTML = "";
+            document.getElementById("output").innerHTML = "";
+            fetch(ingressPath + "/api/plan", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ request: request, mode: currentGenMode })
+            })
+            .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+            .then(function(res) {
+                btn.disabled = false; spinner.style.display = "none";
+                if (!res.ok) { document.getElementById("plan-container").innerHTML = '<div class="error-msg">' + escapeHtml(res.data.detail || "Plan failed") + '</div>'; return; }
+                currentPlanId = res.data.plan_id;
+                currentPlanData = res.data.plan;
+                currentPlanContext = res.data.context_block;
+                renderPlanPanel(res.data);
+            })
+            .catch(function() { btn.disabled = false; spinner.style.display = "none"; document.getElementById("plan-container").innerHTML = '<div class="error-msg">Network error</div>'; });
+        }
+
+        function renderPlanPanel(data) {
+            var plan = data.plan;
+            var isDash = data.mode === "dashboard";
+            addedPlanEntities = [];
+            var html = '<div class="plan-panel">';
+            html += '<div class="plan-panel-header"><h3>Plan Review' + (data.iteration > 1 ? ' (Iteration ' + data.iteration + ')' : '') + '</h3><span class="meta">Plan ID: ' + escapeHtml(data.plan_id.substring(0,8)) + '...</span></div>';
+
+            // Entities
+            html += '<div class="plan-section"><div class="plan-section-title">Entities</div><div class="entity-chips" id="plan-entities">';
+            if (plan.entities_selected && plan.entities_selected.length) {
+                plan.entities_selected.forEach(function(e, i) {
+                    var roleClass = "role-" + (e.role || "context");
+                    html += '<span class="entity-chip" data-idx="' + i + '" onclick="toggleEntity(this)"><span class="role-badge ' + roleClass + '">' + escapeHtml(e.role || "?") + '</span> ' + escapeHtml(e.entity_id);
+                    if (e.friendly_name && e.friendly_name !== e.entity_id) html += ' <small style="color:var(--text-muted)">(' + escapeHtml(e.friendly_name) + ')</small>';
+                    html += '</span>';
+                });
+            }
+            html += '</div>';
+            // Entity search input
+            var roleOpts = isDash
+                ? '<option value="display">display</option><option value="context">context</option>'
+                : '<option value="action">action</option><option value="trigger">trigger</option><option value="condition">condition</option><option value="context">context</option>';
+            html += '<div class="entity-add-row"><input type="text" id="entity-search" placeholder="Add entity... (type to search)" autocomplete="off" oninput="onEntitySearch(this.value)" onfocus="onEntitySearch(this.value)" onblur="setTimeout(function(){closeEntityDropdown()},200)">';
+            html += '<select id="entity-role-select">' + roleOpts + '</select>';
+            html += '<div class="entity-dropdown" id="entity-dropdown"></div></div>';
+            html += '</div>';
+
+            // Outlines
+            if (!isDash) {
+                html += '<div class="plan-section"><div class="plan-section-title">Trigger</div><textarea class="plan-textarea" id="plan-trigger">' + escapeHtml(plan.trigger_outline || "") + '</textarea></div>';
+                html += '<div class="plan-section"><div class="plan-section-title">Conditions</div><textarea class="plan-textarea" id="plan-conditions">' + escapeHtml(plan.conditions_outline || "") + '</textarea></div>';
+                html += '<div class="plan-section"><div class="plan-section-title">Actions</div><textarea class="plan-textarea" id="plan-actions">' + escapeHtml(plan.actions_outline || "") + '</textarea></div>';
+            } else {
+                html += '<div class="plan-section"><div class="plan-section-title">Layout</div><textarea class="plan-textarea" id="plan-layout">' + escapeHtml(plan.layout_outline || "") + '</textarea></div>';
+            }
+
+            // Assumptions
+            if (plan.assumptions && plan.assumptions.length) {
+                html += '<div class="plan-section"><div class="plan-section-title">Assumptions</div>';
+                plan.assumptions.forEach(function(a, i) {
+                    html += '<div class="assumption-item"><input type="checkbox" checked id="assumption-' + i + '"> <label for="assumption-' + i + '">' + escapeHtml(a) + '</label></div>';
+                });
+                html += '</div>';
+            }
+
+            // Questions
+            if (plan.questions && plan.questions.length) {
+                html += '<div class="plan-section"><div class="plan-section-title">Questions from LLM</div>';
+                plan.questions.forEach(function(q, i) {
+                    html += '<div class="question-item"><div class="q-label">' + escapeHtml(q) + '</div><input type="text" id="question-' + i + '" placeholder="Your answer..."></div>';
+                });
+                html += '</div>';
+            }
+
+            // Suggestions
+            if (plan.suggestions && plan.suggestions.length) {
+                html += '<div class="plan-section"><div class="plan-section-title">Suggestions</div>';
+                plan.suggestions.forEach(function(s, i) {
+                    html += '<div class="suggestion-inline"><span>' + escapeHtml(s) + '</span><button class="btn btn-sm btn-outline" onclick="acceptSuggestion(' + i + ')">Add</button></div>';
+                });
+                html += '</div>';
+            }
+
+            // Refinement notes with entity autocomplete
+            html += '<div class="plan-section"><div class="plan-section-title">Refinement Notes (optional)</div><textarea class="plan-textarea" id="plan-refinement" placeholder="e.g., Change the trigger to time-based, add sensor.lux as a condition..."></textarea>';
+            html += '<div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.25rem">Tip: Type an entity ID (e.g. sensor.) and press Tab or click a suggestion to autocomplete</div>';
+            html += '<div class="entity-dropdown" id="refinement-dropdown"></div></div>';
+
+            // Action buttons
+            html += '<div class="plan-actions"><button class="btn" onclick="approveAndGenerate()">Approve &amp; Generate</button><button class="btn btn-secondary" onclick="refinePlan()">Refine Plan</button><button class="btn btn-secondary" onclick="cancelPlan()">Cancel</button></div>';
+
+            // Meta
+            html += '<div class="plan-meta">Model: ' + escapeHtml(data.model || "") + ' | Tokens: ' + ((data.prompt_tokens||0) + (data.completion_tokens||0)) + '</div>';
+            html += '</div>';
+            document.getElementById("plan-container").innerHTML = html;
+            initRefinementAutocomplete();
+        }
+
+        function toggleEntity(chip) { chip.classList.toggle("deselected"); }
+
+        // -- Entity search/add for plan panel --
+        var addedPlanEntities = [];  // entities added by user (not from LLM)
+
+        function onEntitySearch(query) {
+            var dd = document.getElementById("entity-dropdown");
+            if (!dd || !cachedEntities || !query || query.length < 2) { if(dd) dd.classList.remove("open"); return; }
+            var q = query.toLowerCase();
+            var matches = [];
+            // Collect already-selected entity IDs to avoid duplicates
+            var existing = new Set();
+            if (currentPlanData && currentPlanData.entities_selected) {
+                currentPlanData.entities_selected.forEach(function(e) { existing.add(e.entity_id); });
+            }
+            addedPlanEntities.forEach(function(e) { existing.add(e.entity_id); });
+            for (var i = 0; i < cachedEntities.length; i++) {
+                var e = cachedEntities[i];
+                if (existing.has(e.entity_id)) continue;
+                if (e.entity_id.toLowerCase().indexOf(q) !== -1 || (e.name && e.name.toLowerCase().indexOf(q) !== -1)) {
+                    matches.push(e);
+                }
+                if (matches.length >= 30) break;
+            }
+            if (!matches.length) { dd.classList.remove("open"); return; }
+            var html = '';
+            matches.forEach(function(e) {
+                html += '<div class="entity-dropdown-item" onmousedown="addPlanEntity(\'' + escapeHtml(e.entity_id) + '\',\'' + escapeHtml((e.name||"").replace(/'/g, "\\'")) + '\')">' + escapeHtml(e.entity_id);
+                if (e.name && e.name !== e.entity_id) html += ' <small>' + escapeHtml(e.name) + '</small>';
+                html += '</div>';
+            });
+            dd.innerHTML = html;
+            dd.classList.add("open");
+        }
+
+        function closeEntityDropdown() {
+            var dd = document.getElementById("entity-dropdown");
+            if (dd) dd.classList.remove("open");
+        }
+
+        function addPlanEntity(entityId, friendlyName) {
+            var role = document.getElementById("entity-role-select").value;
+            var newEntity = { entity_id: entityId, friendly_name: friendlyName || entityId, role: role, alternatives: [] };
+            addedPlanEntities.push(newEntity);
+            // Render chip
+            var container = document.getElementById("plan-entities");
+            var roleClass = "role-" + role;
+            var chipHtml = '<span class="entity-chip entity-chip-added" data-entity-id="' + escapeHtml(entityId) + '" onclick="toggleEntity(this)"><span class="role-badge ' + roleClass + '">' + escapeHtml(role) + '</span> ' + escapeHtml(entityId);
+            if (friendlyName && friendlyName !== entityId) chipHtml += ' <small style="color:var(--text-muted)">(' + escapeHtml(friendlyName) + ')</small>';
+            chipHtml += ' <small style="color:var(--accent);cursor:pointer" onclick="event.stopPropagation();removePlanEntity(\'' + escapeHtml(entityId) + '\',this.parentElement)">x</small></span>';
+            container.insertAdjacentHTML("beforeend", chipHtml);
+            // Clear search
+            var input = document.getElementById("entity-search");
+            if (input) input.value = "";
+            closeEntityDropdown();
+        }
+
+        function removePlanEntity(entityId, chipEl) {
+            addedPlanEntities = addedPlanEntities.filter(function(e) { return e.entity_id !== entityId; });
+            if (chipEl) chipEl.remove();
+        }
+
+        // -- Refinement notes entity autocomplete --
+        var refActiveIdx = 0;
+        var refWordStart = 0;
+        var refWordEnd = 0;
+
+        function initRefinementAutocomplete() {
+            var textarea = document.getElementById("plan-refinement");
+            if (!textarea) return;
+            textarea.addEventListener("input", function() { onRefinementInput(this); });
+            textarea.addEventListener("keydown", function(e) {
+                var dd = document.getElementById("refinement-dropdown");
+                if (!dd || !dd.classList.contains("open")) return;
+                var items = dd.querySelectorAll(".entity-dropdown-item");
+                if (!items.length) return;
+                if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    refActiveIdx = Math.min(refActiveIdx + 1, items.length - 1);
+                    updateRefDropdownHighlight(items);
+                } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    refActiveIdx = Math.max(refActiveIdx - 1, 0);
+                    updateRefDropdownHighlight(items);
+                } else if (e.key === "Tab" || e.key === "Enter") {
+                    e.preventDefault();
+                    var active = items[refActiveIdx];
+                    if (active) active.dispatchEvent(new Event("mousedown"));
+                } else if (e.key === "Escape") {
+                    dd.classList.remove("open");
+                }
+            });
+            textarea.addEventListener("blur", function() { setTimeout(function(){ var dd=document.getElementById("refinement-dropdown"); if(dd) dd.classList.remove("open"); }, 200); });
+        }
+
+        function updateRefDropdownHighlight(items) {
+            for (var i = 0; i < items.length; i++) {
+                items[i].classList.toggle("active", i === refActiveIdx);
+            }
+            // Scroll active item into view
+            if (items[refActiveIdx]) items[refActiveIdx].scrollIntoView({ block: "nearest" });
+        }
+
+        function onRefinementInput(textarea) {
+            var dd = document.getElementById("refinement-dropdown");
+            if (!dd || !cachedEntities) return;
+            var val = textarea.value;
+            var pos = textarea.selectionStart;
+            // Find current word (walk back from cursor)
+            var start = pos;
+            while (start > 0 && /[a-z0-9_.]/.test(val.charAt(start - 1))) start--;
+            var word = val.slice(start, pos).toLowerCase();
+            if (word.length < 3 || word.indexOf(".") === -1) { dd.classList.remove("open"); return; }
+            refWordStart = start;
+            refWordEnd = pos;
+            var matches = [];
+            for (var i = 0; i < cachedEntities.length; i++) {
+                var e = cachedEntities[i];
+                if (e.entity_id.toLowerCase().indexOf(word) !== -1) {
+                    matches.push(e);
+                }
+                if (matches.length >= 15) break;
+            }
+            if (!matches.length) { dd.classList.remove("open"); return; }
+            refActiveIdx = 0;
+            var html = '';
+            matches.forEach(function(e, idx) {
+                var cls = "entity-dropdown-item" + (idx === 0 ? " active" : "");
+                html += '<div class="' + cls + '" onmousedown="insertRefinementEntity(\'' + escapeHtml(e.entity_id) + '\')">' + escapeHtml(e.entity_id);
+                if (e.name && e.name !== e.entity_id) html += ' <small>' + escapeHtml(e.name) + '</small>';
+                html += '</div>';
+            });
+            dd.innerHTML = html;
+            dd.style.left = "0"; dd.style.right = "0"; dd.style.bottom = "100%"; dd.style.top = "auto";
+            dd.classList.add("open");
+        }
+
+        function insertRefinementEntity(entityId) {
+            var textarea = document.getElementById("plan-refinement");
+            if (!textarea) return;
+            var val = textarea.value;
+            textarea.value = val.substring(0, refWordStart) + entityId + val.substring(refWordEnd);
+            textarea.selectionStart = textarea.selectionEnd = refWordStart + entityId.length;
+            textarea.focus();
+            var dd = document.getElementById("refinement-dropdown");
+            if (dd) dd.classList.remove("open");
+        }
+
+        function acceptSuggestion(idx) {
+            var plan = currentPlanData;
+            if (!plan || !plan.suggestions || !plan.suggestions[idx]) return;
+            var s = plan.suggestions[idx];
+            var isDash = currentGenMode === "dashboard";
+            var target = isDash ? document.getElementById("plan-layout") : document.getElementById("plan-actions");
+            if (target) target.value = target.value + "\n" + s;
+            var btn = event.target;
+            btn.textContent = "Added"; btn.disabled = true;
+        }
+
+        function collectApprovedPlan() {
+            var plan = currentPlanData;
+            if (!plan) return null;
+            var isDash = currentGenMode === "dashboard";
+
+            // Collect selected entities (not deselected) — LLM entities + user-added
+            var entities = [];
+            var llmChips = document.querySelectorAll("#plan-entities .entity-chip:not(.entity-chip-added)");
+            llmChips.forEach(function(chip, i) {
+                if (!chip.classList.contains("deselected") && plan.entities_selected[i]) {
+                    entities.push(plan.entities_selected[i]);
+                }
+            });
+            // Add user-added entities (not deselected)
+            document.querySelectorAll("#plan-entities .entity-chip-added").forEach(function(chip) {
+                if (!chip.classList.contains("deselected")) {
+                    var eid = chip.getAttribute("data-entity-id");
+                    var match = addedPlanEntities.find(function(e) { return e.entity_id === eid; });
+                    if (match) entities.push(match);
+                }
+            });
+
+            // Collect accepted assumptions
+            var assumptions = [];
+            if (plan.assumptions) {
+                plan.assumptions.forEach(function(a, i) {
+                    var cb = document.getElementById("assumption-" + i);
+                    if (cb && cb.checked) assumptions.push(a);
+                });
+            }
+
+            // Collect answered questions
+            var answered = {};
+            if (plan.questions) {
+                plan.questions.forEach(function(q, i) {
+                    var inp = document.getElementById("question-" + i);
+                    if (inp && inp.value.trim()) answered[q] = inp.value.trim();
+                });
+            }
+
+            return {
+                plan_id: currentPlanId || "",
+                entities_selected: entities,
+                trigger_outline: isDash ? "" : (document.getElementById("plan-trigger")?.value || ""),
+                conditions_outline: isDash ? null : (document.getElementById("plan-conditions")?.value || null),
+                actions_outline: isDash ? "" : (document.getElementById("plan-actions")?.value || ""),
+                layout_outline: isDash ? (document.getElementById("plan-layout")?.value || null) : null,
+                assumptions: assumptions,
+                answered_questions: answered,
+                user_notes: ""
+            };
+        }
+
+        function approveAndGenerate() {
+            var approved = collectApprovedPlan();
+            if (!approved) return;
+            var request = document.getElementById("request").value.trim();
+            var btn = document.querySelector('.plan-actions .btn:first-child');
+            var spinner = document.getElementById("gen-spinner");
+            btn.disabled = true; btn.textContent = "Generating..."; spinner.style.display = "block";
+
+            fetch(ingressPath + "/api/plan/generate", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    plan_id: currentPlanId, original_request: request,
+                    mode: currentGenMode, approved_plan: approved,
+                    context_block: currentPlanContext || ""
+                })
+            })
+            .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+            .then(function(res) {
+                btn.disabled = false; btn.textContent = "Approve & Generate"; spinner.style.display = "none";
+                if (!res.ok) { document.getElementById("output").innerHTML = '<div class="error-msg">' + escapeHtml(res.data.detail || "Generation failed") + '</div>'; return; }
+                document.getElementById("plan-container").innerHTML = "";
+                renderGenerateResult(res.data);
+            })
+            .catch(function() { btn.disabled = false; btn.textContent = "Approve & Generate"; spinner.style.display = "none"; document.getElementById("output").innerHTML = '<div class="error-msg">Network error</div>'; });
+        }
+
+        function refinePlan() {
+            var approved = collectApprovedPlan();
+            if (!approved) return;
+            var request = document.getElementById("request").value.trim();
+            var notes = document.getElementById("plan-refinement")?.value?.trim() || "";
+            var btn = document.querySelectorAll('.plan-actions .btn')[1];
+            var spinner = document.getElementById("gen-spinner");
+            btn.disabled = true; btn.textContent = "Refining..."; spinner.style.display = "block";
+
+            fetch(ingressPath + "/api/plan", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    request: request, mode: currentGenMode,
+                    previous_plan: approved, refinement_notes: notes
+                })
+            })
+            .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+            .then(function(res) {
+                btn.disabled = false; btn.textContent = "Refine Plan"; spinner.style.display = "none";
+                if (!res.ok) { document.getElementById("plan-container").innerHTML += '<div class="error-msg">' + escapeHtml(res.data.detail || "Refinement failed") + '</div>'; return; }
+                currentPlanId = res.data.plan_id;
+                currentPlanData = res.data.plan;
+                if (res.data.context_block) currentPlanContext = res.data.context_block;
+                renderPlanPanel(res.data);
+            })
+            .catch(function() { btn.disabled = false; btn.textContent = "Refine Plan"; spinner.style.display = "none"; });
+        }
+
+        function cancelPlan() {
+            currentPlanId = null; currentPlanData = null; currentPlanContext = null;
+            addedPlanEntities = [];
+            document.getElementById("plan-container").innerHTML = "";
+        }
+
+        function renderGenerateResult(data) {
+            currentGenerationId = data.generation_id || "";
+            var mode = data.mode || "automation";
+            var yaml = data.yaml_output || "";
+            var validation = data.validation;
+            var modeLabel = mode === "dashboard" ? "Dashboard" : "Automation";
+            var metaParts = ["Mode: " + modeLabel, "Model: " + escapeHtml(data.model || "unknown"), "Tokens: " + ((data.prompt_tokens||0) + (data.completion_tokens||0))];
+            if (data.retries > 0) metaParts.push("Retries: " + data.retries);
+
+            var deployBtnHtml = "";
+            if (validation && validation.valid) {
+                var fn = mode === "dashboard" ? "deployDashboard()" : "deployAutomation()";
+                var label = mode === "dashboard" ? "Deploy Dashboard" : "Deploy to HA";
+                deployBtnHtml = '<div class="btn-row"><button class="btn btn-success btn-sm" onclick="' + fn + '" id="deploy-btn">' + label + '</button><span id="deploy-status"></span></div>';
+            }
+            var out = document.getElementById("output");
+            if (cmEditor) { cmEditor.toTextArea(); cmEditor = null; }
+            out.innerHTML =
+                '<div class="result"><div class="result-header"><span>Generated ' + modeLabel + '</span>' +
+                '<div class="result-header-actions"><button class="copy-btn" onclick="copyYaml()">Copy YAML</button></div></div>' +
+                '<textarea id="yaml-editor">' + escapeHtml(yaml) + '</textarea></div>' +
+                deployBtnHtml + buildValidationHtml(validation, data.retries) +
+                '<div class="meta">' + metaParts.join(" | ") + '</div>';
+            var ta = document.getElementById("yaml-editor");
+            if (ta) cmEditor = createYamlEditor(ta);
+        }
+
+        // -- Quick Fix --
+        function renderReviewResults(data) {
+            var results = document.getElementById("review-results");
+            currentReviewId = data.review_id || "";
+            currentReviewFindings = data.findings || [];
+
+            var html = '<div class="review-summary">' + escapeHtml(data.summary || "No summary") + '</div>';
+            if (!data.findings || data.findings.length === 0) { html += '<div class="empty-state">No issues found!</div>'; results.innerHTML = html; return; }
+
+            // Fix All bar
+            var quickCount = data.quick_fix_count || 0;
+            if (quickCount > 0) {
+                html += '<div class="fix-all-bar"><span>' + quickCount + ' quick fix(es) available</span>' +
+                    '<button class="btn btn-success btn-sm" onclick="applyAllQuickFixes()">Fix All (' + quickCount + ')</button></div>';
+            }
+
+            var groups = { critical: [], warning: [], suggestion: [], info: [] };
+            data.findings.forEach(function(f) { var s = f.severity || "info"; (groups[s] || groups.info).push(f); });
+
+            var sevConfig = { critical: { label: "Critical", cls: "badge-critical", icon: "!!" }, warning: { label: "Warnings", cls: "badge-warning", icon: "!" }, suggestion: { label: "Suggestions", cls: "badge-suggestion", icon: "?" }, info: { label: "Info", cls: "badge-info", icon: "i" } };
+            ["critical","warning","suggestion","info"].forEach(function(sev) {
+                if (groups[sev].length === 0) return;
+                var c = sevConfig[sev];
+                html += '<div class="findings-group"><div class="findings-group-title"><span class="badge ' + c.cls + '">' + c.icon + '</span> ' + c.label + ' (' + groups[sev].length + ')</div>';
+                groups[sev].forEach(function(f) {
+                    var fixBadge = '';
+                    if (f.fix_type === "quick") fixBadge = '<span class="fix-badge fix-quick">Quick Fix</span>';
+                    else if (f.fix_type === "guided") fixBadge = '<span class="fix-badge fix-guided">Guided Fix</span>';
+
+                    html += '<div class="finding-card" id="finding-' + escapeHtml(f.finding_id || "") + '">';
+                    html += '<div class="finding-card-header"><span class="finding-title">' + escapeHtml(f.title) + '</span><div style="display:flex;gap:0.3rem;align-items:center">' + fixBadge + '<span class="badge badge-info" style="font-size:0.65rem">' + escapeHtml(f.category) + '</span></div></div>';
+                    if (f.automation_alias || f.automation_id) html += '<div class="finding-automation">Automation: ' + escapeHtml(f.automation_alias || f.automation_id) + '</div>';
+                    html += '<div class="finding-desc">' + escapeHtml(f.description) + '</div>';
+                    if (f.fix_description) html += '<div class="finding-desc" style="color:var(--success);margin-top:0.3rem">Fix: ' + escapeHtml(f.fix_description) + '</div>';
+                    if (f.suggested_yaml) html += '<div class="finding-fix">' + escapeHtml(f.suggested_yaml) + '</div>';
+                    if (f.fix_yaml) html += '<div class="finding-fix">' + escapeHtml(f.fix_yaml) + '</div>';
+
+                    // Action buttons
+                    if (f.fix_type === "quick") {
+                        html += '<div class="finding-actions">';
+                        if (f.requires_confirmation) {
+                            html += '<button class="btn btn-success btn-sm" onclick="confirmAndApplyFix(\'' + escapeHtml(f.finding_id) + '\')">Apply Fix (Confirm)</button>';
+                        } else {
+                            html += '<button class="btn btn-success btn-sm" onclick="applyFix(\'' + escapeHtml(f.finding_id) + '\', true)">Apply Fix</button>';
+                        }
+                        html += '</div>';
+                    } else if (f.fix_type === "guided") {
+                        html += '<div class="finding-actions"><button class="btn btn-sm btn-outline" onclick="startGuidedFix(\'' + escapeHtml(f.finding_id) + '\')">Guided Fix</button></div>';
+                    }
+                    html += '</div>';
+                });
+                html += '</div>';
+            });
+
+            var meta = [];
+            if (data.model) meta.push("Model: " + escapeHtml(data.model));
+            if (data.automations_reviewed) meta.push("Automations: " + data.automations_reviewed);
+            if (data.dashboards_reviewed) meta.push("Dashboards: " + data.dashboards_reviewed);
+            if (meta.length) html += '<div class="meta">' + meta.join(" | ") + '</div>';
+            results.innerHTML = html;
+        }
+
+        function applyFix(findingId, confirmed) {
+            var btn = event.target;
+            btn.disabled = true; btn.textContent = "Applying...";
+            fetch(ingressPath + "/api/review/apply-fix", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ review_id: currentReviewId, finding_id: findingId, confirmed: confirmed })
+            })
+            .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+            .then(function(res) {
+                if (res.ok && res.data.success) {
+                    btn.textContent = "Applied"; btn.style.background = "var(--text-muted)";
+                    var card = document.getElementById("finding-" + findingId);
+                    if (card) card.classList.add("fix-applied");
+                } else {
+                    btn.disabled = false; btn.textContent = "Apply Fix";
+                    alert(res.data.detail || res.data.message || "Apply failed");
+                }
+            })
+            .catch(function() { btn.disabled = false; btn.textContent = "Apply Fix"; alert("Network error"); });
+        }
+
+        function confirmAndApplyFix(findingId) {
+            var finding = null;
+            if (currentReviewFindings) {
+                for (var i = 0; i < currentReviewFindings.length; i++) {
+                    if (currentReviewFindings[i].finding_id === findingId) { finding = currentReviewFindings[i]; break; }
+                }
+            }
+            var desc = finding ? finding.title + " — " + finding.description : "This fix affects a sensitive domain.";
+            var overlay = document.createElement("div");
+            overlay.className = "confirm-overlay";
+            overlay.innerHTML = '<div class="confirm-dialog"><h3>Confirm Sensitive Fix</h3>' +
+                '<p>This fix affects a sensitive domain (lock, alarm, cover, camera, or siren). Please confirm you want to apply it.</p>' +
+                '<p style="font-size:0.85rem;color:var(--text-muted)">' + escapeHtml(desc) + '</p>' +
+                '<div class="btn-row"><button class="btn btn-secondary btn-sm" onclick="this.closest(\'.confirm-overlay\').remove()">Cancel</button>' +
+                '<button class="btn btn-success btn-sm" onclick="this.closest(\'.confirm-overlay\').remove(); applyFix(\'' + escapeHtml(findingId) + '\', true)">Confirm &amp; Apply</button></div></div>';
+            document.body.appendChild(overlay);
+        }
+
+        function applyAllQuickFixes() {
+            var btn = event.target;
+            btn.disabled = true; btn.textContent = "Applying all...";
+
+            // Collect sensitive finding IDs that need confirmation
+            var sensitiveFindingIds = [];
+            if (currentReviewFindings) {
+                currentReviewFindings.forEach(function(f) {
+                    if (f.fix_type === "quick" && f.requires_confirmation) sensitiveFindingIds.push(f.finding_id);
+                });
+            }
+
+            if (sensitiveFindingIds.length > 0) {
+                var overlay = document.createElement("div");
+                overlay.className = "confirm-overlay";
+                overlay.innerHTML = '<div class="confirm-dialog"><h3>Confirm Sensitive Fixes</h3>' +
+                    '<p>' + sensitiveFindingIds.length + ' fix(es) affect sensitive domains. Confirm to include them in the batch.</p>' +
+                    '<div class="btn-row"><button class="btn btn-secondary btn-sm" onclick="this.closest(\'.confirm-overlay\').remove(); doApplyAll([]); ">Skip Sensitive</button>' +
+                    '<button class="btn btn-success btn-sm" onclick="this.closest(\'.confirm-overlay\').remove(); doApplyAll(' + JSON.stringify(sensitiveFindingIds) + ')">Include All</button></div></div>';
+                document.body.appendChild(overlay);
+            } else {
+                doApplyAll([]);
+            }
+        }
+
+        function doApplyAll(confirmedSensitive) {
+            fetch(ingressPath + "/api/review/apply-all-quick-fixes", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ review_id: currentReviewId, confirmed_sensitive: confirmedSensitive })
+            })
+            .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+            .then(function(res) {
+                var bar = document.querySelector(".fix-all-bar");
+                if (res.ok && res.data.success) {
+                    if (bar) bar.innerHTML = '<span style="color:var(--success)">Applied ' + res.data.applied + ' of ' + res.data.total + ' fix(es)</span>';
+                    // Mark applied findings
+                    if (res.data.results) {
+                        res.data.results.forEach(function(r) {
+                            if (r.success) {
+                                var card = document.getElementById("finding-" + r.finding_id);
+                                if (card) { card.classList.add("fix-applied"); var btns = card.querySelectorAll(".finding-actions .btn"); btns.forEach(function(b){b.disabled=true;b.textContent="Applied";}); }
+                            }
+                        });
+                    }
+                } else {
+                    if (bar) bar.innerHTML += ' <span class="error-msg" style="padding:0.2rem 0.5rem;margin:0">' + escapeHtml(res.data.detail || "Batch apply failed") + '</span>';
+                }
+            })
+            .catch(function() { var bar = document.querySelector(".fix-all-bar"); if(bar) bar.innerHTML += ' <span class="error-msg" style="padding:0.2rem 0.5rem;margin:0">Network error</span>'; });
+        }
+
+        function startGuidedFix(findingId) {
+            var finding = null;
+            if (currentReviewFindings) {
+                for (var i = 0; i < currentReviewFindings.length; i++) {
+                    if (currentReviewFindings[i].finding_id === findingId) { finding = currentReviewFindings[i]; break; }
+                }
+            }
+            if (!finding) return;
+            var desc = "Fix: " + finding.title + " — " + finding.description;
+            if (finding.current_yaml) desc += "\n\nCurrent YAML:\n" + finding.current_yaml;
+            setGenMode("automation");
+            switchTab("generate");
+            document.getElementById("request").value = desc;
+            startPlan();
         }
 
         // -- Helpers --

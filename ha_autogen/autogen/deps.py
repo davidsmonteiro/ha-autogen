@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from autogen.db.database import Database
     from autogen.explorer.engine import ExplorerEngine
     from autogen.llm.prompts.templates import TemplateStore
+    from autogen.planner.engine import PlannerEngine
     from autogen.reviewer.engine import ReviewEngine
 
 _context_engine: ContextEngine | None = None
@@ -19,6 +20,7 @@ _database: Database | None = None
 _review_engine: ReviewEngine | None = None
 _template_store: TemplateStore | None = None
 _explorer_engine: ExplorerEngine | None = None
+_planner_engine: PlannerEngine | None = None
 
 
 def get_context_engine() -> ContextEngine:
@@ -63,3 +65,11 @@ def get_explorer_engine() -> ExplorerEngine:
 
     assert _explorer_engine is not None, "ExplorerEngine not initialised"
     return _explorer_engine
+
+
+def get_planner_engine() -> PlannerEngine:
+    """FastAPI dependency: return the shared PlannerEngine."""
+    from autogen.planner.engine import PlannerEngine
+
+    assert _planner_engine is not None, "PlannerEngine not initialised"
+    return _planner_engine

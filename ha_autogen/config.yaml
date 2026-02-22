@@ -1,6 +1,6 @@
 name: "HA AutoGen"
 description: "Natural language automation & dashboard generator with config review"
-version: "0.1.0"
+version: "0.2.0"
 slug: "ha_autogen"
 url: "https://github.com/davidsmonteiro/ha-autogen"
 arch:

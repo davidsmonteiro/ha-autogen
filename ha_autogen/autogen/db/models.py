@@ -51,3 +51,31 @@ class ReviewRecord(BaseModel):
     prompt_tokens: int = 0
     completion_tokens: int = 0
     created_at: str = ""
+
+
+class PlanRecord(BaseModel):
+    id: str
+    request: str
+    mode: str = "automation"
+    plan_json: str = "{}"
+    context_block: str = ""
+    model: str = ""
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    status: str = "pending"
+    generation_id: str | None = None
+    iteration: int = 1
+    created_at: str = ""
+    updated_at: str = ""
+
+
+class FixApplicationRecord(BaseModel):
+    id: str
+    review_id: str
+    finding_id: str
+    fix_type: str = "quick"
+    fix_yaml: str
+    automation_id: str | None = None
+    status: str = "applied"
+    applied_at: str = ""
+    rolled_back_at: str | None = None

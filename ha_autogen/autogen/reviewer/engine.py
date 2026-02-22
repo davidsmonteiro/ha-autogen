@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import uuid
 from io import StringIO
 
 from ruamel.yaml import YAML
@@ -87,6 +88,7 @@ class ReviewEngine:
         # Phase 3: merge and deduplicate
         all_findings = self._merge_findings(rule_findings, llm_findings)
         self._sort_findings(all_findings)
+        self._assign_finding_ids(all_findings)
 
         # Build summary
         summary = self._build_summary(all_findings, len(automations))
@@ -153,6 +155,7 @@ class ReviewEngine:
         # Phase 3: merge and deduplicate
         all_findings = self._merge_findings(rule_findings, llm_findings)
         self._sort_findings(all_findings)
+        self._assign_finding_ids(all_findings)
 
         views_count = len(dashboard.get("views", []))
         summary = self._build_dashboard_summary(all_findings, views_count)
@@ -214,6 +217,13 @@ class ReviewEngine:
         buf = StringIO()
         _yaml.dump(data, buf)
         return buf.getvalue()
+
+    @staticmethod
+    def _assign_finding_ids(findings: list[ReviewFinding]) -> None:
+        """Assign unique IDs to findings that don't have one."""
+        for f in findings:
+            if not f.finding_id:
+                f.finding_id = uuid.uuid4().hex[:12]
 
     @staticmethod
     def _sort_findings(findings: list[ReviewFinding]) -> None:

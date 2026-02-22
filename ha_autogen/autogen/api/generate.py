@@ -45,6 +45,9 @@ class GenerateRequest(BaseModel):
     mode: Literal["automation", "dashboard"] = Field(
         "automation", description="Generation mode: automation or dashboard"
     )
+    skip_plan: bool = Field(
+        False, description="Skip plan mode and generate directly"
+    )
 
 
 class GenerateResponse(BaseModel):
