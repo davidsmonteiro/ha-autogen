@@ -1,0 +1,4 @@
+# Force LF line endings for files that run inside Linux containers
+ha_autogen/rootfs/** eol=lf
+ha_autogen/Dockerfile eol=lf
+*.sh eol=lf

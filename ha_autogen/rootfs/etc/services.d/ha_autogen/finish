@@ -1,0 +1,7 @@
+#!/usr/bin/execlineb -S1
+# shellcheck shell=bash
+# ==============================================================================
+# Take down the S6 supervision tree when the service exits
+# ==============================================================================
+
+/run s6-envuidgid -D 0 -G 0 s6-applyuidgid -u 0 -g 0 -- s6-svscanctl -t /var/run/s6/services
