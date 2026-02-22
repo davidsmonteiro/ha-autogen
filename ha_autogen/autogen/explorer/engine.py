@@ -43,6 +43,31 @@ class ExplorerEngine:
         # Phase 1: deterministic analysis
         analysis = analyze_inventory(entities, areas, automations)
 
+        # Filter area profiles by focus criteria
+        profiles = analysis.area_profiles
+        if focus_area:
+            profiles = [
+                p for p in profiles
+                if p.area_name.lower() == focus_area.lower()
+                or p.area_id == focus_area
+            ]
+
+        # Filter matched patterns the same way
+        matched_patterns = analysis.matched_patterns
+        if focus_area:
+            focus_area_lower = focus_area.lower()
+            matched_patterns = [
+                m for m in matched_patterns
+                if m.area_name.lower() == focus_area_lower
+                or m.area_id == focus_area
+            ]
+        if focus_domain:
+            matched_patterns = [
+                m for m in matched_patterns
+                if m.trigger_domain == focus_domain
+                or m.target_domain == focus_domain
+            ]
+
         # Build area highlights
         area_highlights = [
             AreaHighlight(
@@ -53,7 +78,7 @@ class ExplorerEngine:
                 coverage_percent=p.coverage_percent,
                 potential_patterns=len(p.potential_patterns),
             )
-            for p in analysis.area_profiles
+            for p in profiles
             if p.potential_patterns
         ]
 
@@ -81,16 +106,16 @@ class ExplorerEngine:
         except Exception:
             logger.exception("Explorer LLM failed, returning deterministic analysis only")
 
-        # If LLM didn't produce results, generate from patterns
+        # If LLM didn't produce results, generate from filtered patterns
         if not suggestions:
-            suggestions = self._suggestions_from_patterns(analysis)
+            suggestions = self._suggestions_from_patterns(matched_patterns)
 
         summary = (
             f"Analyzed {analysis.total_entities} entities across "
             f"{analysis.total_areas} areas. "
             f"{analysis.coverage_percent:.0f}% automation coverage. "
             f"Found {len(suggestions)} suggestion(s) and "
-            f"{len(analysis.matched_patterns)} pattern match(es)."
+            f"{len(matched_patterns)} pattern match(es)."
         )
 
         return ExplorationResult(
@@ -152,12 +177,12 @@ class ExplorerEngine:
 
     @staticmethod
     def _suggestions_from_patterns(
-        analysis,
+        patterns: list,
     ) -> list[AutomationSuggestion]:
         """Generate basic suggestions from deterministic pattern matches."""
         suggestions: list[AutomationSuggestion] = []
 
-        for pattern in analysis.matched_patterns[:10]:
+        for pattern in patterns[:10]:
             trigger_str = ", ".join(pattern.trigger_entities[:2])
             target_str = ", ".join(pattern.target_entities[:2])
 
