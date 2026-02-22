@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir --break-system-packages -r requirements.txt
 
 COPY autogen/ ./autogen/
 COPY frontend/ ./frontend/
-COPY run.sh /run.sh
-RUN chmod a+x /run.sh
 
-CMD ["/run.sh"]
+# s6-overlay service (HA base image uses s6-overlay v3)
+COPY run.sh /etc/services.d/ha_autogen/run
+RUN chmod a+x /etc/services.d/ha_autogen/run
