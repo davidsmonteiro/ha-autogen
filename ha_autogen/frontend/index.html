@@ -492,15 +492,15 @@
             .then(function(res) {
                 if (res.ok && res.data.success) {
                     btn.textContent = "Deployed"; btn.style.opacity = "0.7";
-                    status.innerHTML = '<span class="success-msg" style="padding:0.3rem 0.6rem;margin:0">' + escapeHtml(res.data.message) + '</span>';
+                    status.innerHTML = '<div class="success-msg" style="padding:0.3rem 0.6rem;margin:0">' + escapeHtml(res.data.message) + '</div>';
                 } else {
                     btn.textContent = label; btn.disabled = false;
-                    status.innerHTML = '<span class="error-msg" style="padding:0.3rem 0.6rem;margin:0">' + escapeHtml(res.data.detail || "Deploy failed") + '</span>';
+                    status.innerHTML = '<div class="error-msg" style="padding:0.3rem 0.6rem;margin:0">' + escapeHtml(res.data.detail || "Deploy failed") + '</div>';
                 }
             })
             .catch(function() {
                 btn.textContent = label; btn.disabled = false;
-                status.innerHTML = '<span class="error-msg" style="padding:0.3rem 0.6rem;margin:0">Network error</span>';
+                status.innerHTML = '<div class="error-msg" style="padding:0.3rem 0.6rem;margin:0">Network error</div>';
             });
         }
 
