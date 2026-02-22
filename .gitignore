@@ -26,5 +26,9 @@ data/
 .DS_Store
 Thumbs.db
 
+# Development docs (internal)
+CLAUDE.md
+docs/
+
 # Claude Code
 .claude/
