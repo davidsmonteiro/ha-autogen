@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from autogen.context.engine import ContextEngine
-from autogen.deps import get_context_engine, get_explorer_engine
+from autogen.deps import get_context_engine, get_explorer_engine, get_reasoning_model
 from autogen.explorer.engine import ExplorerEngine
 from autogen.explorer.models import AreaHighlight, AutomationSuggestion, ExplorationResult
 
@@ -37,6 +37,7 @@ class ExploreResponse(BaseModel):
     model: str = ""
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    reasoning_tokens: int = 0
 
 
 @router.post("/explore", response_model=ExploreResponse)
@@ -44,6 +45,7 @@ async def explore_automations(
     body: ExploreRequest,
     context_engine: ContextEngine = Depends(get_context_engine),
     explorer_engine: ExplorerEngine = Depends(get_explorer_engine),
+    reasoning_model: str | None = Depends(get_reasoning_model),
 ) -> ExploreResponse:
     """Analyze the HA inventory and suggest automation opportunities."""
     try:
@@ -51,6 +53,7 @@ async def explore_automations(
             context_engine,
             focus_area=body.focus_area,
             focus_domain=body.focus_domain,
+            reasoning_model=reasoning_model,
         )
     except Exception as e:
         logger.error("Exploration failed: %s", e, exc_info=True)
@@ -67,4 +70,5 @@ async def explore_automations(
         model=result.model,
         prompt_tokens=result.prompt_tokens,
         completion_tokens=result.completion_tokens,
+        reasoning_tokens=result.reasoning_tokens,
     )

@@ -15,6 +15,8 @@ class LLMResponse(BaseModel):
     model: str = ""
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    reasoning_tokens: int = 0
+    thinking: str | None = None
     raw: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -31,8 +33,13 @@ class LLMBackend(ABC):
         self,
         system_prompt: str,
         user_prompt: str,
+        reasoning_model: str | None = None,
     ) -> LLMResponse:
-        """Generate a completion given system and user prompts."""
+        """Generate a completion given system and user prompts.
+
+        If reasoning_model is set, the backend may override the model and
+        enable reasoning/thinking parameters (provider-specific).
+        """
         ...
 
     @abstractmethod

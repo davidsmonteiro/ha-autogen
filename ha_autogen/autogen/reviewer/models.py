@@ -54,3 +54,4 @@ class ReviewResult(BaseModel):
     model: str = ""
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    reasoning_tokens: int = 0

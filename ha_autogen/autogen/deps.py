@@ -21,6 +21,7 @@ _review_engine: ReviewEngine | None = None
 _template_store: TemplateStore | None = None
 _explorer_engine: ExplorerEngine | None = None
 _planner_engine: PlannerEngine | None = None
+_reasoning_model: str | None = None
 
 
 def get_context_engine() -> ContextEngine:
@@ -73,3 +74,8 @@ def get_planner_engine() -> PlannerEngine:
 
     assert _planner_engine is not None, "PlannerEngine not initialised"
     return _planner_engine
+
+
+def get_reasoning_model() -> str | None:
+    """FastAPI dependency: return the configured reasoning model (or None)."""
+    return _reasoning_model

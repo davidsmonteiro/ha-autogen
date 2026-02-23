@@ -87,6 +87,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         )
     logger.info("LLM backend: %s (model: %s)", backend_type, model)
 
+    # Init reasoning model (optional, OpenRouter only)
+    reasoning_model = options.get("reasoning_model", "")
+    deps._reasoning_model = reasoning_model if reasoning_model else None
+    if deps._reasoning_model:
+        logger.info("Reasoning model: %s", deps._reasoning_model)
+
     # Init review engine
     deps._review_engine = ReviewEngine(deps._llm_backend)
 
@@ -113,6 +119,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     deps._template_store = None
     deps._explorer_engine = None
     deps._planner_engine = None
+    deps._reasoning_model = None
 
 
 app = FastAPI(

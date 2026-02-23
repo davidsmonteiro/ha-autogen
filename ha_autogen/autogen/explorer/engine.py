@@ -30,6 +30,7 @@ class ExplorerEngine:
         context_engine: ContextEngine,
         focus_area: str | None = None,
         focus_domain: str | None = None,
+        reasoning_model: str | None = None,
     ) -> ExplorationResult:
         """Run exploration: inventory analysis + LLM suggestions.
 
@@ -87,6 +88,7 @@ class ExplorerEngine:
         model = ""
         prompt_tokens = 0
         completion_tokens = 0
+        reasoning_tokens = 0
 
         try:
             user_prompt = build_explore_user_prompt(
@@ -94,10 +96,12 @@ class ExplorerEngine:
             )
             llm_response = await self._llm.generate(
                 EXPLORE_SYSTEM_PROMPT, user_prompt,
+                reasoning_model=reasoning_model,
             )
             model = llm_response.model
             prompt_tokens = llm_response.prompt_tokens
             completion_tokens = llm_response.completion_tokens
+            reasoning_tokens = llm_response.reasoning_tokens
 
             suggestions = self._parse_suggestions(
                 llm_response.content, known_entity_ids,
@@ -129,6 +133,7 @@ class ExplorerEngine:
             model=model,
             prompt_tokens=prompt_tokens,
             completion_tokens=completion_tokens,
+            reasoning_tokens=reasoning_tokens,
         )
 
     def _parse_suggestions(

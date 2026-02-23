@@ -33,6 +33,7 @@ class PlannerEngine:
         mode: str,
         context_block: str,
         known_entities: list[EntityEntry],
+        reasoning_model: str | None = None,
     ) -> tuple[PlanResponse, LLMResponse]:
         """Create a structured plan from a user request (initial call).
 
@@ -46,7 +47,9 @@ class PlannerEngine:
         full_system = f"{plan_system}\n\n{context_block}"
         user_prompt = build_plan_user_prompt(request, mode)
 
-        llm_response = await self._llm.generate(full_system, user_prompt)
+        llm_response = await self._llm.generate(
+            full_system, user_prompt, reasoning_model=reasoning_model,
+        )
         plan = self._parse_plan(llm_response.content, known_entities)
         return plan, llm_response
 
@@ -58,6 +61,7 @@ class PlannerEngine:
         previous_plan: ApprovedPlan,
         refinement_notes: str,
         known_entities: list[EntityEntry],
+        reasoning_model: str | None = None,
     ) -> tuple[PlanResponse, LLMResponse]:
         """Refine an existing plan based on user edits and instructions.
 
@@ -73,7 +77,9 @@ class PlannerEngine:
             original_request, previous_plan, refinement_notes, mode,
         )
 
-        llm_response = await self._llm.generate(full_system, user_prompt)
+        llm_response = await self._llm.generate(
+            full_system, user_prompt, reasoning_model=reasoning_model,
+        )
         plan = self._parse_plan(llm_response.content, known_entities)
         return plan, llm_response
 
@@ -83,6 +89,7 @@ class PlannerEngine:
         original_request: str,
         mode: str,
         system_prompt: str,
+        reasoning_model: str | None = None,
     ) -> LLMResponse:
         """Generate YAML from an approved plan.
 
@@ -92,7 +99,9 @@ class PlannerEngine:
         user_prompt = build_generate_from_plan_user_prompt(
             original_request, approved_plan, mode,
         )
-        return await self._llm.generate(system_prompt, user_prompt)
+        return await self._llm.generate(
+            system_prompt, user_prompt, reasoning_model=reasoning_model,
+        )
 
     def _parse_plan(
         self,

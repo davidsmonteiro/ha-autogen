@@ -32,6 +32,7 @@ class OllamaBackend(LLMBackend):
         self,
         system_prompt: str,
         user_prompt: str,
+        reasoning_model: str | None = None,
     ) -> LLMResponse:
         """Call Ollama /api/chat with system + user messages."""
         client = await self._get_client()

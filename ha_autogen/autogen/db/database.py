@@ -22,7 +22,7 @@ def _get_db_path() -> str:
     return str(db_dir / "ha_autogen.db")
 
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 MIGRATIONS: dict[int, list[str]] = {
     1: [
@@ -129,6 +129,12 @@ MIGRATIONS: dict[int, list[str]] = {
         )
         """,
         "UPDATE schema_version SET version = 4",
+    ],
+    5: [
+        "ALTER TABLE generations ADD COLUMN reasoning_tokens INTEGER DEFAULT 0",
+        "ALTER TABLE reviews ADD COLUMN reasoning_tokens INTEGER DEFAULT 0",
+        "ALTER TABLE plans ADD COLUMN reasoning_tokens INTEGER DEFAULT 0",
+        "UPDATE schema_version SET version = 5",
     ],
 }
 

@@ -42,6 +42,7 @@ class ReviewEngine:
         automations: list[dict],
         entity_summary: str | None = None,
         extra_instructions: str | None = None,
+        reasoning_model: str | None = None,
     ) -> ReviewResult:
         """Run a full review on a list of automations.
 
@@ -65,6 +66,7 @@ class ReviewEngine:
         model = ""
         prompt_tokens = 0
         completion_tokens = 0
+        reasoning_tokens = 0
 
         try:
             automations_yaml = self._automations_to_yaml(automations)
@@ -75,10 +77,12 @@ class ReviewEngine:
                 system_prompt = f"{system_prompt}\n\n{extra_instructions}"
             llm_response = await self._llm.generate(
                 system_prompt, user_prompt,
+                reasoning_model=reasoning_model,
             )
             model = llm_response.model
             prompt_tokens = llm_response.prompt_tokens
             completion_tokens = llm_response.completion_tokens
+            reasoning_tokens = llm_response.reasoning_tokens
 
             llm_findings = self._parse_llm_findings(llm_response.content)
             logger.info("LLM review produced %d findings", len(llm_findings))
@@ -100,6 +104,7 @@ class ReviewEngine:
             model=model,
             prompt_tokens=prompt_tokens,
             completion_tokens=completion_tokens,
+            reasoning_tokens=reasoning_tokens,
         )
 
     async def review_dashboards(
@@ -109,6 +114,7 @@ class ReviewEngine:
         areas: list[dict] | None = None,
         entity_summary: str | None = None,
         extra_instructions: str | None = None,
+        reasoning_model: str | None = None,
     ) -> ReviewResult:
         """Run a full review on a Lovelace dashboard config.
 
@@ -128,6 +134,7 @@ class ReviewEngine:
         model = ""
         prompt_tokens = 0
         completion_tokens = 0
+        reasoning_tokens = 0
 
         try:
             dashboard_yaml = self._dict_to_yaml(dashboard)
@@ -140,10 +147,12 @@ class ReviewEngine:
                 dash_system_prompt = f"{dash_system_prompt}\n\n{extra_instructions}"
             llm_response = await self._llm.generate(
                 dash_system_prompt, user_prompt,
+                reasoning_model=reasoning_model,
             )
             model = llm_response.model
             prompt_tokens = llm_response.prompt_tokens
             completion_tokens = llm_response.completion_tokens
+            reasoning_tokens = llm_response.reasoning_tokens
 
             llm_findings = self._parse_llm_findings(llm_response.content)
             logger.info("LLM dashboard review produced %d findings", len(llm_findings))
@@ -167,6 +176,7 @@ class ReviewEngine:
             model=model,
             prompt_tokens=prompt_tokens,
             completion_tokens=completion_tokens,
+            reasoning_tokens=reasoning_tokens,
         )
 
     async def review_full(
@@ -177,14 +187,16 @@ class ReviewEngine:
         areas: list[dict] | None = None,
         entity_summary: str | None = None,
         extra_instructions: str | None = None,
+        reasoning_model: str | None = None,
     ) -> ReviewResult:
         """Run a combined review of both automations and dashboards."""
         auto_result = await self.review_automations(
             automations, entity_summary, extra_instructions,
+            reasoning_model=reasoning_model,
         )
         dash_result = await self.review_dashboards(
             dashboard, known_entity_ids, areas, entity_summary,
-            extra_instructions,
+            extra_instructions, reasoning_model=reasoning_model,
         )
 
         all_findings = auto_result.findings + dash_result.findings
@@ -204,6 +216,7 @@ class ReviewEngine:
             model=auto_result.model or dash_result.model,
             prompt_tokens=auto_result.prompt_tokens + dash_result.prompt_tokens,
             completion_tokens=auto_result.completion_tokens + dash_result.completion_tokens,
+            reasoning_tokens=auto_result.reasoning_tokens + dash_result.reasoning_tokens,
         )
 
     def _automations_to_yaml(self, automations: list[dict]) -> str:

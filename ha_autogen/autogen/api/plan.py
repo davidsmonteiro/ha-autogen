@@ -18,6 +18,7 @@ from autogen.deps import (
     get_database,
     get_llm_backend,
     get_planner_engine,
+    get_reasoning_model,
     get_template_store,
 )
 from autogen.llm.base import LLMBackend
@@ -61,6 +62,7 @@ class PlanResult(BaseModel):
     model: str = ""
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    reasoning_tokens: int = 0
     context_block: str = ""
     iteration: int = 1
 
@@ -103,6 +105,7 @@ async def create_plan(
     planner_engine: PlannerEngine = Depends(get_planner_engine),
     template_store: TemplateStore = Depends(get_template_store),
     db: Database = Depends(get_database),
+    reasoning_model: str | None = Depends(get_reasoning_model),
 ) -> PlanResult:
     """Create or refine a structured plan from a natural language request."""
     is_dashboard = body.mode == "dashboard"
@@ -132,6 +135,7 @@ async def create_plan(
                 previous_plan=body.previous_plan,
                 refinement_notes=body.refinement_notes or "",
                 known_entities=known_entities,
+                reasoning_model=reasoning_model,
             )
         else:
             plan, llm_response = await planner_engine.create_plan(
@@ -139,6 +143,7 @@ async def create_plan(
                 mode=body.mode,
                 context_block=context_block,
                 known_entities=known_entities,
+                reasoning_model=reasoning_model,
             )
     except Exception as e:
         logger.error("Plan generation failed: %s", e, exc_info=True)
@@ -150,7 +155,8 @@ async def create_plan(
         # Update existing plan row
         await db.conn.execute(
             """UPDATE plans SET plan_json = ?, model = ?, prompt_tokens = ?,
-               completion_tokens = ?, iteration = iteration + 1,
+               completion_tokens = ?, reasoning_tokens = ?,
+               iteration = iteration + 1,
                updated_at = datetime('now')
                WHERE id = ?""",
             (
@@ -158,6 +164,7 @@ async def create_plan(
                 llm_response.model,
                 llm_response.prompt_tokens,
                 llm_response.completion_tokens,
+                llm_response.reasoning_tokens,
                 plan_id,
             ),
         )
@@ -174,9 +181,10 @@ async def create_plan(
         await db.conn.execute(
             """INSERT INTO plans
                (id, request, mode, plan_json, context_block, model,
-                prompt_tokens, completion_tokens, status, iteration,
+                prompt_tokens, completion_tokens, reasoning_tokens,
+                status, iteration,
                 created_at, updated_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 1,
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 1,
                        datetime('now'), datetime('now'))""",
             (
                 plan_id,
@@ -187,6 +195,7 @@ async def create_plan(
                 llm_response.model,
                 llm_response.prompt_tokens,
                 llm_response.completion_tokens,
+                llm_response.reasoning_tokens,
             ),
         )
         await db.conn.commit()
@@ -199,6 +208,7 @@ async def create_plan(
         model=llm_response.model,
         prompt_tokens=llm_response.prompt_tokens,
         completion_tokens=llm_response.completion_tokens,
+        reasoning_tokens=llm_response.reasoning_tokens,
         context_block=context_block,
         iteration=iteration,
     )
@@ -212,6 +222,7 @@ async def generate_from_plan(
     planner_engine: PlannerEngine = Depends(get_planner_engine),
     template_store: TemplateStore = Depends(get_template_store),
     db: Database = Depends(get_database),
+    reasoning_model: str | None = Depends(get_reasoning_model),
 ) -> GenerateResponse:
     """Generate YAML from an approved plan."""
     is_dashboard = body.mode == "dashboard"
@@ -246,6 +257,7 @@ async def generate_from_plan(
                 original_request=body.original_request,
                 mode=body.mode,
                 system_prompt=full_system,
+                reasoning_model=reasoning_model,
             )
         except Exception as e:
             logger.error("Plan-based generation failed: %s", e, exc_info=True)
@@ -262,6 +274,7 @@ async def generate_from_plan(
                 model=llm_response.model,
                 prompt_tokens=llm_response.prompt_tokens,
                 completion_tokens=llm_response.completion_tokens,
+                reasoning_tokens=llm_response.reasoning_tokens,
                 validation=validation,
                 retries=retries,
             )
@@ -298,6 +311,7 @@ async def generate_from_plan(
             model=llm_response.model,
             prompt_tokens=llm_response.prompt_tokens,
             completion_tokens=llm_response.completion_tokens,
+            reasoning_tokens=llm_response.reasoning_tokens,
             validation=validation,
             retries=retries,
         )

@@ -61,7 +61,7 @@ class MockLLM(LLMBackend):
         self._content = content
         self._should_fail = should_fail
 
-    async def generate(self, system_prompt: str, user_prompt: str) -> LLMResponse:
+    async def generate(self, system_prompt: str, user_prompt: str, reasoning_model: str | None = None) -> LLMResponse:
         if self._should_fail:
             raise RuntimeError("LLM unavailable")
         return LLMResponse(

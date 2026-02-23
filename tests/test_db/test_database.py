@@ -39,7 +39,7 @@ async def test_schema_version_is_set(db: Database) -> None:
     async with db.conn.execute("SELECT version FROM schema_version") as cursor:
         row = await cursor.fetchone()
     assert row is not None
-    assert row["version"] == 4
+    assert row["version"] == 5
 
 
 @pytest.mark.asyncio

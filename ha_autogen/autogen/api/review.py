@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 
 from autogen.context.engine import ContextEngine
 from autogen.db.database import Database
-from autogen.deps import get_context_engine, get_database, get_review_engine, get_template_store
+from autogen.deps import get_context_engine, get_database, get_reasoning_model, get_review_engine, get_template_store
 from autogen.llm.prompts.templates import TemplateStore, apply_templates
 from autogen.quickfix.classifier import (
     EnrichedFinding,
@@ -80,6 +80,7 @@ class ReviewResponse(BaseModel):
     model: str = ""
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    reasoning_tokens: int = 0
 
 
 class ApplyFixRequest(BaseModel):
@@ -135,6 +136,7 @@ async def review_configurations(
     review_engine: ReviewEngine = Depends(get_review_engine),
     db: Database = Depends(get_database),
     template_store: TemplateStore = Depends(get_template_store),
+    reasoning_model: str | None = Depends(get_reasoning_model),
 ) -> ReviewResponse:
     """Review existing automations and/or dashboards for issues."""
     # Build entity summary for context
@@ -198,6 +200,7 @@ async def review_configurations(
             result = await review_engine.review_automations(
                 automations, entity_summary=entity_summary,
                 extra_instructions=extra_instructions,
+                reasoning_model=reasoning_model,
             )
         except Exception as e:
             logger.error("Automation review failed: %s", e, exc_info=True)
@@ -238,6 +241,7 @@ async def review_configurations(
                 areas=context_engine.areas,
                 entity_summary=entity_summary,
                 extra_instructions=extra_instructions,
+                reasoning_model=reasoning_model,
             )
         except Exception as e:
             logger.error("Dashboard review failed: %s", e, exc_info=True)
@@ -274,11 +278,13 @@ async def review_configurations(
                     areas=context_engine.areas,
                     entity_summary=entity_summary,
                     extra_instructions=extra_instructions,
+                    reasoning_model=reasoning_model,
                 )
             elif automations:
                 result = await review_engine.review_automations(
                     automations, entity_summary=entity_summary,
                     extra_instructions=extra_instructions,
+                    reasoning_model=reasoning_model,
                 )
             else:
                 result = await review_engine.review_dashboards(
@@ -287,6 +293,7 @@ async def review_configurations(
                     areas=context_engine.areas,
                     entity_summary=entity_summary,
                     extra_instructions=extra_instructions,
+                    reasoning_model=reasoning_model,
                 )
         except Exception as e:
             logger.error("Full review failed: %s", e, exc_info=True)
@@ -306,8 +313,8 @@ async def review_configurations(
     await db.conn.execute(
         """INSERT INTO reviews
            (id, scope, target_id, findings_json, summary, model,
-            prompt_tokens, completion_tokens, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))""",
+            prompt_tokens, completion_tokens, reasoning_tokens, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))""",
         (
             review_id,
             body.target,
@@ -317,6 +324,7 @@ async def review_configurations(
             result.model,
             result.prompt_tokens,
             result.completion_tokens,
+            result.reasoning_tokens,
         ),
     )
     await db.conn.commit()
@@ -332,6 +340,7 @@ async def review_configurations(
         model=result.model,
         prompt_tokens=result.prompt_tokens,
         completion_tokens=result.completion_tokens,
+        reasoning_tokens=result.reasoning_tokens,
     )
 
 

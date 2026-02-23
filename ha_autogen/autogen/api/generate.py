@@ -18,7 +18,7 @@ from autogen.context.token_budget import (
     get_context_window,
 )
 from autogen.db.database import Database
-from autogen.deps import get_context_engine, get_database, get_llm_backend, get_template_store
+from autogen.deps import get_context_engine, get_database, get_llm_backend, get_reasoning_model, get_template_store
 from autogen.llm.base import LLMBackend
 from autogen.llm.prompts.automation import build_user_prompt
 from autogen.llm.prompts.dashboard import (
@@ -60,6 +60,7 @@ class GenerateResponse(BaseModel):
     model: str = Field("", description="Model that generated the response")
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    reasoning_tokens: int = 0
     validation: ValidationResult | None = None
     retries: int = 0
 
@@ -84,9 +85,10 @@ async def _save_generation(
     await db.conn.execute(
         """INSERT INTO generations
            (id, request, yaml_output, raw_response, model,
-            prompt_tokens, completion_tokens, validation_json, retries,
+            prompt_tokens, completion_tokens, reasoning_tokens,
+            validation_json, retries,
             status, type, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))""",
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))""",
         (
             gen_id,
             request_text,
@@ -95,6 +97,7 @@ async def _save_generation(
             resp.model,
             resp.prompt_tokens,
             resp.completion_tokens,
+            resp.reasoning_tokens,
             validation_json,
             resp.retries,
             status,
@@ -112,6 +115,7 @@ async def generate_automation(
     llm_backend: LLMBackend = Depends(get_llm_backend),
     db: Database = Depends(get_database),
     template_store: TemplateStore = Depends(get_template_store),
+    reasoning_model: str | None = Depends(get_reasoning_model),
 ) -> GenerateResponse:
     """Generate automation or dashboard YAML from a natural language request."""
     is_dashboard = body.mode == "dashboard"
@@ -161,7 +165,10 @@ async def generate_automation(
             )
 
         try:
-            llm_response = await llm_backend.generate(full_system, current_user_prompt)
+            llm_response = await llm_backend.generate(
+                full_system, current_user_prompt,
+                reasoning_model=reasoning_model,
+            )
         except Exception as e:
             logger.error("LLM generation failed: %s", e, exc_info=True)
             raise HTTPException(status_code=502, detail=str(e))
@@ -179,6 +186,7 @@ async def generate_automation(
                 model=llm_response.model,
                 prompt_tokens=llm_response.prompt_tokens,
                 completion_tokens=llm_response.completion_tokens,
+                reasoning_tokens=llm_response.reasoning_tokens,
                 validation=validation,
                 retries=retries,
             )
@@ -208,6 +216,7 @@ async def generate_automation(
             model=llm_response.model,
             prompt_tokens=llm_response.prompt_tokens,
             completion_tokens=llm_response.completion_tokens,
+            reasoning_tokens=llm_response.reasoning_tokens,
             validation=validation,
             retries=retries,
         )

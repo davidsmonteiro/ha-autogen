@@ -41,12 +41,14 @@ class OpenAICompatBackend(LLMBackend):
         self,
         system_prompt: str,
         user_prompt: str,
+        reasoning_model: str | None = None,
     ) -> LLMResponse:
         """Call /v1/chat/completions with system + user messages."""
         client = await self._get_client()
+        effective_model = reasoning_model or self._model
 
         payload: dict[str, Any] = {
-            "model": self._model,
+            "model": effective_model,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
@@ -54,10 +56,15 @@ class OpenAICompatBackend(LLMBackend):
             "stream": False,
         }
 
+        # Enable reasoning when using a reasoning model via OpenRouter
+        if reasoning_model:
+            payload["reasoning"] = {"effort": "high"}
+
         logger.debug(
-            "OpenAI-compat request: model=%s, prompt_len=%d",
-            self._model,
+            "OpenAI-compat request: model=%s, prompt_len=%d, reasoning=%s",
+            effective_model,
             len(user_prompt),
+            bool(reasoning_model),
         )
 
         resp = await client.post("/v1/chat/completions", json=payload)
@@ -93,11 +100,20 @@ class OpenAICompatBackend(LLMBackend):
         choice = data["choices"][0]["message"]
         usage = data.get("usage", {})
 
+        # Extract reasoning tokens from usage details
+        completion_details = usage.get("completion_tokens_details") or {}
+        reasoning_tokens = completion_details.get("reasoning_tokens", 0)
+
+        # Extract thinking content (OpenRouter returns it in message.reasoning)
+        thinking = choice.get("reasoning")
+
         return LLMResponse(
-            content=choice["content"],
+            content=choice.get("content") or "",
             model=data.get("model", self._model),
             prompt_tokens=usage.get("prompt_tokens", 0),
             completion_tokens=usage.get("completion_tokens", 0),
+            reasoning_tokens=reasoning_tokens,
+            thinking=thinking if thinking else None,
             raw=data,
         )
 

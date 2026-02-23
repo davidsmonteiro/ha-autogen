@@ -24,11 +24,19 @@ router = APIRouter(prefix="/api", tags=["settings"])
 
 # -- LLM settings --
 
+VALID_REASONING_MODELS = {
+    "",
+    "anthropic/claude-sonnet-4-6",
+    "openai/gpt-5.2",
+}
+
+
 class LLMSettingsResponse(BaseModel):
     llm_backend: str = ""
     llm_api_url: str = ""
     llm_model: str = ""
     has_api_key: bool = False
+    reasoning_model: str | None = None
 
 
 class LLMSettingsUpdateRequest(BaseModel):
@@ -36,6 +44,7 @@ class LLMSettingsUpdateRequest(BaseModel):
     llm_api_url: str | None = None
     llm_api_key: str | None = None
     llm_model: str | None = None
+    reasoning_model: str | None = None
 
 
 @router.get("/settings/llm", response_model=LLMSettingsResponse)
@@ -49,6 +58,7 @@ async def get_llm_settings(
             llm_api_url=llm._base_url,
             llm_model=llm._model,
             has_api_key=bool(llm._api_key),
+            reasoning_model=deps._reasoning_model,
         )
     elif isinstance(llm, OllamaBackend):
         return LLMSettingsResponse(
@@ -56,6 +66,7 @@ async def get_llm_settings(
             llm_api_url=llm._base_url,
             llm_model=llm._model,
             has_api_key=False,
+            reasoning_model=deps._reasoning_model,
         )
     return LLMSettingsResponse()
 
@@ -115,13 +126,27 @@ async def update_llm_settings(
         from autogen.explorer.engine import ExplorerEngine
         deps._explorer_engine = ExplorerEngine(new_llm)
 
-    logger.info("LLM settings updated: backend=%s, model=%s, url=%s", new_backend, new_model, new_url)
+    # Handle reasoning model update
+    if body.reasoning_model is not None:
+        rm = body.reasoning_model.strip()
+        if rm and rm not in VALID_REASONING_MODELS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid reasoning_model: must be one of {sorted(VALID_REASONING_MODELS - {''})} or empty to disable",
+            )
+        deps._reasoning_model = rm if rm else None
+
+    logger.info(
+        "LLM settings updated: backend=%s, model=%s, url=%s, reasoning=%s",
+        new_backend, new_model, new_url, deps._reasoning_model,
+    )
 
     return LLMSettingsResponse(
         llm_backend=new_backend,
         llm_api_url=new_url,
         llm_model=new_model,
         has_api_key=bool(new_key),
+        reasoning_model=deps._reasoning_model,
     )
 
 

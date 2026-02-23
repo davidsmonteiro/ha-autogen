@@ -435,6 +435,14 @@
                         <input type="password" id="llm-api-key" placeholder="sk-..." style="width:100%;padding:0.4rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:0.85rem">
                     </div>
                 </div>
+                <div style="margin-top:0.75rem">
+                    <label style="display:block;font-size:0.8rem;color:var(--text-muted);margin-bottom:0.25rem">Reasoning Model <span style="font-size:0.75rem">(requires OpenRouter backend)</span></label>
+                    <select id="llm-reasoning-model" style="width:100%;max-width:320px;padding:0.4rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:0.85rem">
+                        <option value="">Disabled</option>
+                        <option value="anthropic/claude-sonnet-4-6">Claude Sonnet 4.6</option>
+                        <option value="openai/gpt-5.2">GPT-5.2</option>
+                    </select>
+                </div>
                 <div class="btn-row" style="margin-top:0.75rem">
                     <button class="btn btn-sm" onclick="saveLLMSettings()">Save</button>
                     <button class="btn btn-sm btn-outline" onclick="testLLMConnection()">Test Connection</button>
@@ -921,6 +929,7 @@
                 document.getElementById("llm-model").value = data.llm_model || "";
                 document.getElementById("llm-api-key").value = "";
                 document.getElementById("llm-api-key").placeholder = data.has_api_key ? "(key set — leave empty to keep)" : "sk-...";
+                document.getElementById("llm-reasoning-model").value = data.reasoning_model || "";
             })
             .catch(function() {});
         }
@@ -932,10 +941,12 @@
             var url = document.getElementById("llm-api-url").value.trim();
             var model = document.getElementById("llm-model").value.trim();
             var key = document.getElementById("llm-api-key").value;
+            var reasoningModel = document.getElementById("llm-reasoning-model").value;
             if (backend) payload.llm_backend = backend;
             if (url) payload.llm_api_url = url;
             if (model) payload.llm_model = model;
             if (key) payload.llm_api_key = key;
+            payload.reasoning_model = reasoningModel;
             status.innerHTML = '<span style="color:var(--text-muted)">Saving...</span>';
             fetch(ingressPath + "/api/settings/llm", {
                 method: "PUT", headers: {"Content-Type": "application/json"},

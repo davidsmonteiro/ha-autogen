@@ -21,6 +21,7 @@ class GenerationRecord(BaseModel):
     model: str = ""
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    reasoning_tokens: int = 0
     validation_json: str = "{}"
     retries: int = 0
     status: GenerationStatus = GenerationStatus.draft
@@ -50,6 +51,7 @@ class ReviewRecord(BaseModel):
     model: str = ""
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    reasoning_tokens: int = 0
     created_at: str = ""
 
 
@@ -62,6 +64,7 @@ class PlanRecord(BaseModel):
     model: str = ""
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    reasoning_tokens: int = 0
     status: str = "pending"
     generation_id: str | None = None
     iteration: int = 1
