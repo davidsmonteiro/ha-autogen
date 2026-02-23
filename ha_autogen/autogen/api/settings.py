@@ -1,16 +1,144 @@
-"""Settings API — template CRUD endpoints."""
+"""Settings API — LLM config + template CRUD endpoints."""
 
 from __future__ import annotations
+
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from typing import Literal
 
-from autogen.deps import get_template_store
+import autogen.deps as deps
+from autogen.deps import get_llm_backend, get_template_store
+from autogen.llm.base import LLMBackend
+from autogen.llm.ollama import OllamaBackend
+from autogen.llm.openai_compat import OpenAICompatBackend
 from autogen.llm.prompts.templates import PromptTemplate, TemplateStore
+from autogen.planner.engine import PlannerEngine
+from autogen.reviewer.engine import ReviewEngine
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["settings"])
 
+
+# -- LLM settings --
+
+class LLMSettingsResponse(BaseModel):
+    llm_backend: str = ""
+    llm_api_url: str = ""
+    llm_model: str = ""
+    has_api_key: bool = False
+
+
+class LLMSettingsUpdateRequest(BaseModel):
+    llm_backend: Literal["ollama", "openai_compat"] | None = None
+    llm_api_url: str | None = None
+    llm_api_key: str | None = None
+    llm_model: str | None = None
+
+
+@router.get("/settings/llm", response_model=LLMSettingsResponse)
+async def get_llm_settings(
+    llm: LLMBackend = Depends(get_llm_backend),
+) -> LLMSettingsResponse:
+    """Return current LLM backend configuration (key is redacted)."""
+    if isinstance(llm, OpenAICompatBackend):
+        return LLMSettingsResponse(
+            llm_backend="openai_compat",
+            llm_api_url=llm._base_url,
+            llm_model=llm._model,
+            has_api_key=bool(llm._api_key),
+        )
+    elif isinstance(llm, OllamaBackend):
+        return LLMSettingsResponse(
+            llm_backend="ollama",
+            llm_api_url=llm._base_url,
+            llm_model=llm._model,
+            has_api_key=False,
+        )
+    return LLMSettingsResponse()
+
+
+@router.put("/settings/llm", response_model=LLMSettingsResponse)
+async def update_llm_settings(
+    body: LLMSettingsUpdateRequest,
+) -> LLMSettingsResponse:
+    """Update LLM backend settings at runtime (no restart needed).
+
+    Only provided fields are updated; omitted fields keep their current value.
+    """
+    current = deps._llm_backend
+    if current is None:
+        raise HTTPException(status_code=500, detail="LLM backend not initialised")
+
+    # Read current values as defaults
+    cur_backend = "openai_compat" if isinstance(current, OpenAICompatBackend) else "ollama"
+    cur_url = current._base_url
+    cur_model = current._model
+    cur_key = getattr(current, "_api_key", "")
+
+    new_backend = body.llm_backend or cur_backend
+    new_url = body.llm_api_url.strip() if body.llm_api_url is not None else cur_url
+    new_model = body.llm_model.strip() if body.llm_model is not None else cur_model
+    new_key = body.llm_api_key if body.llm_api_key is not None else cur_key
+
+    if not new_url:
+        raise HTTPException(status_code=400, detail="API URL cannot be empty")
+    if not new_model:
+        raise HTTPException(status_code=400, detail="Model name cannot be empty")
+
+    # Close old backend
+    if hasattr(current, "close"):
+        await current.close()
+
+    # Create new backend
+    if new_backend == "openai_compat":
+        new_llm: LLMBackend = OpenAICompatBackend(
+            base_url=new_url,
+            model=new_model,
+            api_key=new_key,
+        )
+    else:
+        new_llm = OllamaBackend(
+            base_url=new_url,
+            model=new_model,
+        )
+
+    # Swap globally
+    deps._llm_backend = new_llm
+
+    # Reinit engines that depend on the LLM backend
+    deps._review_engine = ReviewEngine(new_llm)
+    deps._planner_engine = PlannerEngine(new_llm)
+    if deps._explorer_engine is not None:
+        from autogen.explorer.engine import ExplorerEngine
+        deps._explorer_engine = ExplorerEngine(new_llm)
+
+    logger.info("LLM settings updated: backend=%s, model=%s, url=%s", new_backend, new_model, new_url)
+
+    return LLMSettingsResponse(
+        llm_backend=new_backend,
+        llm_api_url=new_url,
+        llm_model=new_model,
+        has_api_key=bool(new_key),
+    )
+
+
+@router.get("/health/llm")
+async def health_check_llm(
+    llm: LLMBackend = Depends(get_llm_backend),
+) -> dict:
+    """Check if the LLM backend is reachable."""
+    model = getattr(llm, "_model", "")
+    try:
+        healthy = await llm.health_check()
+    except Exception as e:
+        return {"healthy": False, "model": model, "error": str(e)}
+    return {"healthy": healthy, "model": model, "error": "" if healthy else "unreachable"}
+
+
+# -- Prompt templates --
 
 class TemplateCreateRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)

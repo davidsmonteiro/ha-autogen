@@ -410,6 +410,39 @@
 
         <!-- Settings Tab -->
         <div id="tab-settings" class="tab-content">
+            <!-- LLM Settings -->
+            <div class="section-title" style="margin-bottom:0.25rem">LLM Configuration</div>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem">Changes apply immediately — no restart needed.</p>
+            <div id="llm-settings" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:1rem;margin-bottom:1.5rem">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+                    <div>
+                        <label style="display:block;font-size:0.8rem;color:var(--text-muted);margin-bottom:0.25rem">Backend</label>
+                        <select id="llm-backend" style="width:100%;padding:0.4rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:0.85rem">
+                            <option value="ollama">Ollama (local)</option>
+                            <option value="openai_compat">OpenAI-compatible (OpenRouter, OpenAI, etc.)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:0.8rem;color:var(--text-muted);margin-bottom:0.25rem">Model</label>
+                        <input type="text" id="llm-model" placeholder="e.g., anthropic/claude-sonnet-4.6" style="width:100%;padding:0.4rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:0.85rem">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:0.8rem;color:var(--text-muted);margin-bottom:0.25rem">API URL</label>
+                        <input type="text" id="llm-api-url" placeholder="http://localhost:11434" style="width:100%;padding:0.4rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:0.85rem">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:0.8rem;color:var(--text-muted);margin-bottom:0.25rem">API Key <span style="font-size:0.75rem">(leave empty to keep current)</span></label>
+                        <input type="password" id="llm-api-key" placeholder="sk-..." style="width:100%;padding:0.4rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:0.85rem">
+                    </div>
+                </div>
+                <div class="btn-row" style="margin-top:0.75rem">
+                    <button class="btn btn-sm" onclick="saveLLMSettings()">Save</button>
+                    <button class="btn btn-sm btn-outline" onclick="testLLMConnection()">Test Connection</button>
+                    <span id="llm-settings-status" style="font-size:0.8rem"></span>
+                </div>
+            </div>
+
+            <!-- Prompt Templates -->
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem">
                 <div>
                     <div class="section-title" style="margin:0">Prompt Templates</div>
@@ -441,7 +474,7 @@
                 document.getElementById("tab-" + tabName).classList.add("active");
                 this.classList.add("active");
                 if (tabName === "history") loadHistory();
-                if (tabName === "settings") loadTemplates();
+                if (tabName === "settings") { loadLLMSettings(); loadTemplates(); }
                 if (tabName === "review" || tabName === "explore") loadContextData();
             });
         });
@@ -879,7 +912,62 @@
             document.getElementById("request").focus();
         }
 
-        // -- Settings tab --
+        // -- Settings tab: LLM config --
+        function loadLLMSettings() {
+            fetch(ingressPath + "/api/settings/llm").then(function(r){return r.json();})
+            .then(function(data) {
+                document.getElementById("llm-backend").value = data.llm_backend || "ollama";
+                document.getElementById("llm-api-url").value = data.llm_api_url || "";
+                document.getElementById("llm-model").value = data.llm_model || "";
+                document.getElementById("llm-api-key").value = "";
+                document.getElementById("llm-api-key").placeholder = data.has_api_key ? "(key set — leave empty to keep)" : "sk-...";
+            })
+            .catch(function() {});
+        }
+
+        function saveLLMSettings() {
+            var status = document.getElementById("llm-settings-status");
+            var payload = {};
+            var backend = document.getElementById("llm-backend").value;
+            var url = document.getElementById("llm-api-url").value.trim();
+            var model = document.getElementById("llm-model").value.trim();
+            var key = document.getElementById("llm-api-key").value;
+            if (backend) payload.llm_backend = backend;
+            if (url) payload.llm_api_url = url;
+            if (model) payload.llm_model = model;
+            if (key) payload.llm_api_key = key;
+            status.innerHTML = '<span style="color:var(--text-muted)">Saving...</span>';
+            fetch(ingressPath + "/api/settings/llm", {
+                method: "PUT", headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            })
+            .then(function(r) { return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
+            .then(function(res) {
+                if (res.ok) {
+                    status.innerHTML = '<span style="color:var(--success)">Saved — using ' + escapeHtml(res.data.llm_backend) + ' / ' + escapeHtml(res.data.llm_model) + '</span>';
+                } else {
+                    status.innerHTML = '<span style="color:var(--error)">' + escapeHtml(res.data.detail || "Save failed") + '</span>';
+                }
+            })
+            .catch(function() { status.innerHTML = '<span style="color:var(--error)">Network error</span>'; });
+        }
+
+        function testLLMConnection() {
+            var status = document.getElementById("llm-settings-status");
+            status.innerHTML = '<span style="color:var(--text-muted)">Testing...</span>';
+            fetch(ingressPath + "/api/health/llm")
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.healthy) {
+                    status.innerHTML = '<span style="color:var(--success)">Connected (' + escapeHtml(data.model || "") + ')</span>';
+                } else {
+                    status.innerHTML = '<span style="color:var(--error)">Connection failed: ' + escapeHtml(data.error || "unreachable") + '</span>';
+                }
+            })
+            .catch(function() { status.innerHTML = '<span style="color:var(--error)">Network error</span>'; });
+        }
+
+        // -- Settings tab: templates --
         function loadTemplates() {
             var list = document.getElementById("templates-list");
             fetch(ingressPath + "/api/templates").then(function(r){return r.json();})

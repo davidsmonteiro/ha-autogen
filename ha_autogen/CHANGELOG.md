@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.2
+
+- **In-app LLM settings**: Configure backend, model, API URL, and API key from the Settings tab — no add-on restart needed. Supports model names with slashes (e.g., `anthropic/claude-sonnet-4.6` for OpenRouter)
+- **LLM health check**: "Test Connection" button in Settings verifies the LLM backend is reachable
+- **Better error messages**: Ollama and OpenAI-compat backends now show clear, actionable errors for empty responses, non-JSON responses, and backend mismatches (e.g., using Ollama backend with an OpenRouter URL)
+
 ## 0.2.1
 
 - **Multi-dashboard deploy**: Dashboard deploy no longer overwrites the default dashboard — users choose to create a new dashboard, deploy to an existing one, or explicitly target the default

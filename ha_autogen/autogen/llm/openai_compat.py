@@ -68,7 +68,27 @@ class OpenAICompatBackend(LLMBackend):
             except Exception:
                 err_msg = resp.text
             raise RuntimeError(f"API error ({resp.status_code}): {err_msg}")
-        data = resp.json()
+
+        if not resp.content or not resp.content.strip():
+            raise RuntimeError(
+                f"API returned an empty response (status {resp.status_code}). "
+                f"Check that llm_api_url ({self._base_url}) is correct."
+            )
+
+        try:
+            data = resp.json()
+        except Exception:
+            preview = resp.text[:200] if resp.text else "(empty)"
+            raise RuntimeError(
+                f"API returned non-JSON response: {preview}... — "
+                f"Check that llm_api_url ({self._base_url}) is correct."
+            )
+
+        if "choices" not in data or not data["choices"]:
+            raise RuntimeError(
+                f"Unexpected API response format (missing 'choices'). "
+                f"Got keys: {list(data.keys())}."
+            )
 
         choice = data["choices"][0]["message"]
         usage = data.get("usage", {})

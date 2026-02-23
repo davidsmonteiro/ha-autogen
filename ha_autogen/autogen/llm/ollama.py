@@ -53,7 +53,31 @@ class OllamaBackend(LLMBackend):
 
         resp = await client.post("/api/chat", json=payload)
         resp.raise_for_status()
-        data = resp.json()
+
+        if not resp.content or not resp.content.strip():
+            raise RuntimeError(
+                f"Ollama returned an empty response (status {resp.status_code}). "
+                f"Check that llm_api_url ({self._base_url}) points to a running "
+                "Ollama instance. If you are using OpenRouter, OpenAI, or another "
+                "cloud API, change llm_backend to 'openai_compat' in Settings."
+            )
+
+        try:
+            data = resp.json()
+        except Exception:
+            preview = resp.text[:200] if resp.text else "(empty)"
+            raise RuntimeError(
+                f"Ollama returned non-JSON response (status {resp.status_code}): "
+                f"{preview}... — If you are using OpenRouter or another OpenAI-"
+                "compatible API, change llm_backend to 'openai_compat' in Settings."
+            )
+
+        if "message" not in data:
+            raise RuntimeError(
+                f"Unexpected Ollama response format (missing 'message' key). "
+                f"Got keys: {list(data.keys())}. If using a non-Ollama API, "
+                "change llm_backend to 'openai_compat' in Settings."
+            )
 
         return LLMResponse(
             content=data["message"]["content"],
