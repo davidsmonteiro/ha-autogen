@@ -178,10 +178,13 @@ def build_refinement_user_prompt(
             lines.append(f"  A: {a}")
         lines.append("")
 
-    lines.append(f"## Refinement Instructions\n\n{refinement_notes}\n")
+    if refinement_notes:
+        lines.append(f"## Refinement Instructions\n\n{refinement_notes}\n")
+
     lines.append(
-        f"Update the plan for this {mode_label} based on the user's edits "
-        f"and refinement instructions above. Return the updated plan as JSON."
+        f"Update the plan for this {mode_label} based on the user's edits"
+        + (f" and refinement instructions" if refinement_notes else "")
+        + " above. Return the updated plan as JSON."
     )
 
     return "\n".join(lines)

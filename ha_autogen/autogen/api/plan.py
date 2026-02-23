@@ -106,7 +106,7 @@ async def create_plan(
 ) -> PlanResult:
     """Create or refine a structured plan from a natural language request."""
     is_dashboard = body.mode == "dashboard"
-    is_refinement = body.previous_plan is not None and body.refinement_notes
+    is_refinement = body.previous_plan is not None
 
     # Build system prompt with templates
     base_system = DASHBOARD_SYSTEM_PROMPT if is_dashboard else SYSTEM_PROMPT
@@ -130,7 +130,7 @@ async def create_plan(
                 mode=body.mode,
                 context_block=context_block,
                 previous_plan=body.previous_plan,
-                refinement_notes=body.refinement_notes,
+                refinement_notes=body.refinement_notes or "",
                 known_entities=known_entities,
             )
         else:

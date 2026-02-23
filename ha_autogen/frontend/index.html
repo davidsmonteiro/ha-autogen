@@ -1061,6 +1061,7 @@
             var spinner = document.getElementById("gen-spinner");
             btn.disabled = true; spinner.style.display = "block";
             addedPlanEntities = [];
+            previousAnsweredQuestions = {};
             document.getElementById("plan-container").innerHTML = "";
             document.getElementById("output").innerHTML = "";
             fetch(ingressPath + "/api/plan", {
@@ -1082,7 +1083,12 @@
         function renderPlanPanel(data) {
             var plan = data.plan;
             var isDash = data.mode === "dashboard";
-            addedPlanEntities = [];
+            // Preserve user-added entities that the LLM didn't include in its response
+            var llmEntityIds = new Set();
+            if (plan.entities_selected) {
+                plan.entities_selected.forEach(function(e) { llmEntityIds.add(e.entity_id); });
+            }
+            addedPlanEntities = addedPlanEntities.filter(function(e) { return !llmEntityIds.has(e.entity_id); });
             var html = '<div class="plan-panel">';
             html += '<div class="plan-panel-header"><h3>Plan Review' + (data.iteration > 1 ? ' (Iteration ' + data.iteration + ')' : '') + '</h3><span class="meta">Plan ID: ' + escapeHtml(data.plan_id.substring(0,8)) + '...</span></div>';
 
@@ -1096,6 +1102,13 @@
                     html += '</span>';
                 });
             }
+            // Re-render preserved user-added entity chips
+            addedPlanEntities.forEach(function(e) {
+                var roleClass = "role-" + (e.role || "context");
+                html += '<span class="entity-chip entity-chip-added" data-entity-id="' + escapeHtml(e.entity_id) + '" onclick="toggleEntity(this)"><span class="role-badge ' + roleClass + '">' + escapeHtml(e.role || "?") + '</span> ' + escapeHtml(e.entity_id);
+                if (e.friendly_name && e.friendly_name !== e.entity_id) html += ' <small style="color:var(--text-muted)">(' + escapeHtml(e.friendly_name) + ')</small>';
+                html += ' <small style="color:var(--accent);cursor:pointer" onclick="event.stopPropagation();removePlanEntity(\'' + escapeHtml(e.entity_id) + '\',this.parentElement)">x</small></span>';
+            });
             html += '</div>';
             // Entity search input
             var roleOpts = isDash
@@ -1124,11 +1137,12 @@
                 html += '</div>';
             }
 
-            // Questions
+            // Questions (pre-fill from previous answers if available)
             if (plan.questions && plan.questions.length) {
                 html += '<div class="plan-section"><div class="plan-section-title">Questions from LLM</div>';
                 plan.questions.forEach(function(q, i) {
-                    html += '<div class="question-item"><div class="q-label">' + escapeHtml(q) + '</div><input type="text" id="question-' + i + '" placeholder="Your answer..."></div>';
+                    var prevAnswer = previousAnsweredQuestions[q] || "";
+                    html += '<div class="question-item"><div class="q-label">' + escapeHtml(q) + '</div><input type="text" id="question-' + i + '" placeholder="Your answer..." value="' + escapeHtml(prevAnswer) + '"></div>';
                 });
                 html += '</div>';
             }
@@ -1161,6 +1175,7 @@
 
         // -- Entity search/add for plan panel --
         var addedPlanEntities = [];  // entities added by user (not from LLM)
+        var previousAnsweredQuestions = {};  // question -> answer, preserved across refinements
 
         function onEntitySearch(query) {
             var dd = document.getElementById("entity-dropdown");
@@ -1398,6 +1413,12 @@
         function refinePlan() {
             var approved = collectApprovedPlan();
             if (!approved) return;
+            // Preserve answered questions for pre-filling after re-render
+            if (approved.answered_questions) {
+                Object.keys(approved.answered_questions).forEach(function(q) {
+                    previousAnsweredQuestions[q] = approved.answered_questions[q];
+                });
+            }
             var request = document.getElementById("request").value.trim();
             var notes = document.getElementById("plan-refinement")?.value?.trim() || "";
             var btn = document.querySelectorAll('.plan-actions .btn')[1];
@@ -1408,7 +1429,8 @@
                 method: "POST", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     request: request, mode: currentGenMode,
-                    previous_plan: approved, refinement_notes: notes
+                    previous_plan: approved, refinement_notes: notes,
+                    plan_id: currentPlanId || null
                 })
             })
             .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
@@ -1426,6 +1448,7 @@
         function cancelPlan() {
             currentPlanId = null; currentPlanData = null; currentPlanContext = null;
             addedPlanEntities = [];
+            previousAnsweredQuestions = {};
             document.getElementById("plan-container").innerHTML = "";
         }
 
