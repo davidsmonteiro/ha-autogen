@@ -94,7 +94,7 @@ class TestGetContextWindow:
     def test_get_context_window_openrouter_prefix(self) -> None:
         """OpenRouter provider/model names should match by stripping the prefix."""
         assert get_context_window("openai/gpt-5.2") == 128000
-        assert get_context_window("anthropic/claude-sonnet-4-6") == 200000
+        assert get_context_window("anthropic/claude-sonnet-4.6") == 200000
 
     def test_get_context_window_openrouter_prefix_fallback(self) -> None:
         """OpenRouter names should fall back to stripped name if full name not in table."""
