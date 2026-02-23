@@ -18,9 +18,9 @@ class PlanResponse(BaseModel):
     """Structured plan produced by the LLM (plan call output)."""
 
     entities_selected: list[EntitySelection] = Field(default_factory=list)
-    trigger_outline: str = ""
+    trigger_outline: str | None = ""
     conditions_outline: str | None = None
-    actions_outline: str = ""
+    actions_outline: str | None = ""
     layout_outline: str | None = None  # dashboard mode
     assumptions: list[str] = Field(default_factory=list)
     questions: list[str] = Field(default_factory=list)
@@ -32,9 +32,9 @@ class ApprovedPlan(BaseModel):
 
     plan_id: str = ""
     entities_selected: list[EntitySelection] = Field(default_factory=list)
-    trigger_outline: str = ""
+    trigger_outline: str | None = ""
     conditions_outline: str | None = None
-    actions_outline: str = ""
+    actions_outline: str | None = ""
     layout_outline: str | None = None
     assumptions: list[str] = Field(default_factory=list)
     answered_questions: dict[str, str] = Field(default_factory=dict)
