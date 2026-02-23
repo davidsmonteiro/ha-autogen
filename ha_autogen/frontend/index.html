@@ -542,7 +542,7 @@
             var yaml = data.yaml_output || "";
             var validation = data.validation;
             var modeLabel = mode === "dashboard" ? "Dashboard" : "Automation";
-            var metaParts = ["Mode: " + modeLabel, "Model: " + escapeHtml(data.model || "unknown"), "Tokens: " + ((data.prompt_tokens||0) + (data.completion_tokens||0))];
+            var metaParts = ["Mode: " + modeLabel, "Model: " + escapeHtml(data.model || "unknown"), buildTokenMeta(data)];
             if (data.retries > 0) metaParts.push("Retries: " + data.retries);
 
             var deployBtnHtml = "";
@@ -1180,7 +1180,7 @@
             html += '<div class="plan-actions"><button class="btn" onclick="approveAndGenerate()">Approve &amp; Generate</button><button class="btn btn-secondary" onclick="refinePlan()">Refine Plan</button><button class="btn btn-secondary" onclick="cancelPlan()">Cancel</button></div>';
 
             // Meta
-            html += '<div class="plan-meta">Model: ' + escapeHtml(data.model || "") + ' | Tokens: ' + ((data.prompt_tokens||0) + (data.completion_tokens||0)) + '</div>';
+            html += '<div class="plan-meta">Model: ' + escapeHtml(data.model || "") + ' | ' + buildTokenMeta(data) + '</div>';
             html += '</div>';
             document.getElementById("plan-container").innerHTML = html;
             initRefinementAutocomplete();
@@ -1473,7 +1473,7 @@
             var yaml = data.yaml_output || "";
             var validation = data.validation;
             var modeLabel = mode === "dashboard" ? "Dashboard" : "Automation";
-            var metaParts = ["Mode: " + modeLabel, "Model: " + escapeHtml(data.model || "unknown"), "Tokens: " + ((data.prompt_tokens||0) + (data.completion_tokens||0))];
+            var metaParts = ["Mode: " + modeLabel, "Model: " + escapeHtml(data.model || "unknown"), buildTokenMeta(data)];
             if (data.retries > 0) metaParts.push("Retries: " + data.retries);
 
             var deployBtnHtml = "";
@@ -1550,6 +1550,7 @@
 
             var meta = [];
             if (data.model) meta.push("Model: " + escapeHtml(data.model));
+            meta.push(buildTokenMeta(data));
             if (data.automations_reviewed) meta.push("Automations: " + data.automations_reviewed);
             if (data.dashboards_reviewed) meta.push("Dashboards: " + data.dashboards_reviewed);
             if (meta.length) html += '<div class="meta">' + meta.join(" | ") + '</div>';
@@ -1683,6 +1684,13 @@
             var div = document.createElement("div");
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function buildTokenMeta(data) {
+            var total = (data.prompt_tokens||0) + (data.completion_tokens||0);
+            var rt = data.reasoning_tokens || 0;
+            if (rt > 0) return "Tokens: " + total + " (reasoning: " + rt + ")";
+            return "Tokens: " + total;
         }
 
         function copyYaml() {

@@ -22,7 +22,7 @@ from autogen.deps import (
     get_template_store,
 )
 from autogen.llm.base import LLMBackend
-from autogen.llm.prompts.dashboard import DASHBOARD_SYSTEM_PROMPT
+from autogen.llm.prompts.dashboard import DASHBOARD_SYSTEM_PROMPT, build_dashboard_context_block
 from autogen.llm.prompts.system import SYSTEM_PROMPT
 from autogen.llm.prompts.templates import TemplateStore, apply_templates
 from autogen.planner.engine import PlannerEngine
@@ -84,7 +84,7 @@ def _build_context(
     llm_backend: LLMBackend,
     base_system: str,
 ) -> tuple[str, str]:
-    """Build the tiered entity context block. Returns (context_block, base_system)."""
+    """Build the entity context block. Returns (context_block, base_system)."""
     areas = context_engine.areas
     if mode == "dashboard":
         entities = context_engine.get_active_entities()
@@ -93,7 +93,10 @@ def _build_context(
 
     model_ctx = get_context_window(llm_backend.model_name)
     budget = compute_budget(model_ctx, base_system, body_request)
-    context_block = build_tiered_context(entities, areas, budget)
+    if mode == "dashboard":
+        context_block = build_dashboard_context_block(entities, areas, budget)
+    else:
+        context_block = build_tiered_context(entities, areas, budget)
     return context_block, base_system
 
 

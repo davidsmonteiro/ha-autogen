@@ -23,6 +23,7 @@ from autogen.llm.base import LLMBackend
 from autogen.llm.prompts.automation import build_user_prompt
 from autogen.llm.prompts.dashboard import (
     DASHBOARD_SYSTEM_PROMPT,
+    build_dashboard_context_block,
     build_dashboard_user_prompt,
 )
 from autogen.llm.prompts.system import SYSTEM_PROMPT
@@ -144,10 +145,13 @@ async def generate_automation(
     )
     base_system = apply_templates(base_system, system_templates + target_templates)
 
-    # Compute token budget and build tiered entity context
+    # Compute token budget and build entity context
     model_ctx = get_context_window(llm_backend.model_name)
     budget = compute_budget(model_ctx, base_system, user_prompt)
-    context_block = build_tiered_context(entities, areas, budget)
+    if is_dashboard:
+        context_block = build_dashboard_context_block(entities, areas, budget)
+    else:
+        context_block = build_tiered_context(entities, areas, budget)
     full_system = f"{base_system}\n\n{context_block}"
 
     retries = 0
