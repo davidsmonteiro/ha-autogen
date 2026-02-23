@@ -87,9 +87,19 @@ class TestGetContextWindow:
         assert get_context_window("mistral:7b-instruct") == 32768
 
     def test_get_context_window_unknown_default(self) -> None:
-        """An unknown model should return the default value."""
-        assert get_context_window("totally-unknown-model") == 8192
+        """An unknown model should return the default value (32768)."""
+        assert get_context_window("totally-unknown-model") == 32768
         assert get_context_window("totally-unknown-model", default=4096) == 4096
+
+    def test_get_context_window_openrouter_prefix(self) -> None:
+        """OpenRouter provider/model names should match by stripping the prefix."""
+        assert get_context_window("openai/gpt-5.2") == 128000
+        assert get_context_window("anthropic/claude-sonnet-4-6") == 200000
+
+    def test_get_context_window_openrouter_prefix_fallback(self) -> None:
+        """OpenRouter names should fall back to stripped name if full name not in table."""
+        # "some-provider/gpt-4o" → strip → "gpt-4o" → 128000
+        assert get_context_window("some-provider/gpt-4o") == 128000
 
     def test_get_context_window_env_override(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """The AUTOGEN_MODEL_CONTEXT_WINDOW env var should override everything."""
@@ -101,6 +111,7 @@ class TestGetContextWindow:
     def test_get_context_window_env_override_invalid(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """A non-integer env var should be ignored, falling back to the table."""
         monkeypatch.setenv("AUTOGEN_MODEL_CONTEXT_WINDOW", "not_a_number")
+        # Falls back to exact match in table
         assert get_context_window("llama3.2") == 8192
 
 

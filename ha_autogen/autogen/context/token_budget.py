@@ -47,25 +47,47 @@ MODEL_CONTEXT_WINDOWS: dict[str, int] = {
     "phi3:mini": 4096,
     "gemma2": 8192,
     "qwen2.5": 32768,
-    # Cloud models
+    # Cloud models (direct names)
     "gpt-4o": 128000,
     "gpt-4o-mini": 128000,
     "gpt-4-turbo": 128000,
     "gpt-3.5-turbo": 16385,
+    "gpt-5": 128000,
+    "gpt-5.2": 128000,
     "claude-3-opus": 200000,
     "claude-3-sonnet": 200000,
     "claude-3-haiku": 200000,
     "claude-3.5-sonnet": 200000,
     "claude-sonnet-4-6": 200000,
     "claude-opus-4-6": 200000,
+    # OpenRouter prefixed names
+    "openai/gpt-4o": 128000,
+    "openai/gpt-4o-mini": 128000,
+    "openai/gpt-5": 128000,
+    "openai/gpt-5.2": 128000,
+    "anthropic/claude-3.5-sonnet": 200000,
+    "anthropic/claude-sonnet-4-6": 200000,
+    "anthropic/claude-opus-4-6": 200000,
+    "google/gemini-2.5-pro": 1000000,
+    "google/gemini-2.5-flash": 1000000,
+    "meta-llama/llama-3-8b": 8192,
+    "meta-llama/llama-3-70b": 8192,
+    "meta-llama/llama-3.1-8b-instruct": 131072,
+    "meta-llama/llama-3.1-70b-instruct": 131072,
 }
 
 
-def get_context_window(model_name: str, default: int = 8192) -> int:
+def get_context_window(model_name: str, default: int = 32768) -> int:
     """Look up context window size for a model.
 
     Checks ``AUTOGEN_MODEL_CONTEXT_WINDOW`` env var first (allows user
     override), then falls back to the built-in table, then *default*.
+
+    Matching order:
+      1. Exact match (e.g. ``openai/gpt-5.2``)
+      2. Ollama tag strip (e.g. ``llama3.2:latest`` → ``llama3.2``)
+      3. OpenRouter prefix strip (e.g. ``openai/gpt-5.2`` → ``gpt-5.2``)
+      4. Default (32768 — safe for most modern models)
     """
     env_override = os.environ.get("AUTOGEN_MODEL_CONTEXT_WINDOW")
     if env_override:
@@ -74,13 +96,20 @@ def get_context_window(model_name: str, default: int = 8192) -> int:
         except ValueError:
             pass
 
-    # Try exact match, then prefix match (e.g. "llama3.2:latest" → "llama3.2")
+    # Exact match
     if model_name in MODEL_CONTEXT_WINDOWS:
         return MODEL_CONTEXT_WINDOWS[model_name]
 
+    # Strip Ollama tag (e.g. "llama3.2:latest" → "llama3.2")
     base_name = model_name.split(":")[0] if ":" in model_name else ""
     if base_name and base_name in MODEL_CONTEXT_WINDOWS:
         return MODEL_CONTEXT_WINDOWS[base_name]
+
+    # Strip OpenRouter provider prefix (e.g. "openai/gpt-5.2" → "gpt-5.2")
+    if "/" in model_name:
+        short_name = model_name.split("/", 1)[1]
+        if short_name in MODEL_CONTEXT_WINDOWS:
+            return MODEL_CONTEXT_WINDOWS[short_name]
 
     return default
 
