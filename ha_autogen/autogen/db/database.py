@@ -22,7 +22,7 @@ def _get_db_path() -> str:
     return str(db_dir / "ha_autogen.db")
 
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 MIGRATIONS: dict[int, list[str]] = {
     1: [
@@ -136,6 +136,16 @@ MIGRATIONS: dict[int, list[str]] = {
         "ALTER TABLE plans ADD COLUMN reasoning_tokens INTEGER DEFAULT 0",
         "UPDATE schema_version SET version = 5",
     ],
+    6: [
+        """
+        CREATE TABLE IF NOT EXISTS settings (
+            key         TEXT PRIMARY KEY,
+            value       TEXT NOT NULL,
+            updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
+        )
+        """,
+        "UPDATE schema_version SET version = 6",
+    ],
 }
 
 
@@ -165,6 +175,30 @@ class Database:
         """Return the active connection (asserts it exists)."""
         assert self._conn is not None, "Database not connected"
         return self._conn
+
+    async def get_setting(self, key: str) -> str | None:
+        """Get a persisted setting by key, or None if not set."""
+        async with self.conn.execute(
+            "SELECT value FROM settings WHERE key = ?", (key,)
+        ) as cursor:
+            row = await cursor.fetchone()
+            return row["value"] if row else None
+
+    async def set_setting(self, key: str, value: str) -> None:
+        """Persist a setting (upsert)."""
+        await self.conn.execute(
+            """INSERT INTO settings (key, value, updated_at)
+               VALUES (?, ?, datetime('now'))
+               ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at""",
+            (key, value),
+        )
+        await self.conn.commit()
+
+    async def get_all_settings(self) -> dict[str, str]:
+        """Return all persisted settings as a dict."""
+        async with self.conn.execute("SELECT key, value FROM settings") as cursor:
+            rows = await cursor.fetchall()
+            return {row["key"]: row["value"] for row in rows}
 
     async def _run_migrations(self) -> None:
         """Apply any pending schema migrations."""

@@ -41,6 +41,7 @@ def _load_options() -> dict:
         "llm_api_key": os.environ.get("LLM_API_KEY", ""),
         "llm_model": os.environ.get("LLM_MODEL", "llama3.2"),
         "max_context_entities": int(os.environ.get("MAX_CONTEXT_ENTITIES", "200")),
+        "reasoning_model": os.environ.get("REASONING_MODEL", ""),
     }
 
 
@@ -55,7 +56,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     options = _load_options()
     logger.info(
-        "HA AutoGen starting with options: %s",
+        "HA AutoGen starting with config.yaml options: %s",
         {k: v for k, v in options.items() if "key" not in k},
     )
 
@@ -63,6 +64,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     deps._database = Database()
     await deps._database.connect()
     logger.info("Database connected")
+
+    # Override config.yaml defaults with DB-persisted settings (in-app saves)
+    db_settings = await deps._database.get_all_settings()
+    if db_settings:
+        logger.info(
+            "Loaded persisted settings from DB: %s",
+            {k: v for k, v in db_settings.items() if "key" not in k},
+        )
+        for key in ("llm_backend", "llm_api_url", "llm_api_key", "llm_model", "reasoning_model"):
+            if key in db_settings:
+                options[key] = db_settings[key]
 
     # Init context engine
     deps._context_engine = ContextEngine()

@@ -9,7 +9,8 @@ from pydantic import BaseModel, Field
 from typing import Literal
 
 import autogen.deps as deps
-from autogen.deps import get_llm_backend, get_template_store
+from autogen.deps import get_database, get_llm_backend, get_template_store
+from autogen.db.database import Database
 from autogen.llm.base import LLMBackend
 from autogen.llm.ollama import OllamaBackend
 from autogen.llm.openai_compat import OpenAICompatBackend
@@ -74,10 +75,12 @@ async def get_llm_settings(
 @router.put("/settings/llm", response_model=LLMSettingsResponse)
 async def update_llm_settings(
     body: LLMSettingsUpdateRequest,
+    db: Database = Depends(get_database),
 ) -> LLMSettingsResponse:
     """Update LLM backend settings at runtime (no restart needed).
 
     Only provided fields are updated; omitted fields keep their current value.
+    Settings are persisted to the database so they survive restarts.
     """
     current = deps._llm_backend
     if current is None:
@@ -136,8 +139,15 @@ async def update_llm_settings(
             )
         deps._reasoning_model = rm if rm else None
 
+    # Persist all settings to DB so they survive restarts
+    await db.set_setting("llm_backend", new_backend)
+    await db.set_setting("llm_api_url", new_url)
+    await db.set_setting("llm_model", new_model)
+    await db.set_setting("llm_api_key", new_key)
+    await db.set_setting("reasoning_model", deps._reasoning_model or "")
+
     logger.info(
-        "LLM settings updated: backend=%s, model=%s, url=%s, reasoning=%s",
+        "LLM settings updated and persisted: backend=%s, model=%s, url=%s, reasoning=%s",
         new_backend, new_model, new_url, deps._reasoning_model,
     )
 
@@ -156,11 +166,12 @@ async def health_check_llm(
 ) -> dict:
     """Check if the LLM backend is reachable."""
     model = getattr(llm, "_model", "")
+    reasoning = deps._reasoning_model
     try:
         healthy = await llm.health_check()
     except Exception as e:
-        return {"healthy": False, "model": model, "error": str(e)}
-    return {"healthy": healthy, "model": model, "error": "" if healthy else "unreachable"}
+        return {"healthy": False, "model": model, "reasoning_model": reasoning, "error": str(e)}
+    return {"healthy": healthy, "model": model, "reasoning_model": reasoning, "error": "" if healthy else "unreachable"}
 
 
 # -- Prompt templates --

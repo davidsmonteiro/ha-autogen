@@ -1,6 +1,6 @@
 name: "HA AutoGen"
 description: "Natural language automation & dashboard generator with config review"
-version: "0.2.3"
+version: "0.2.4"
 slug: "ha_autogen"
 url: "https://github.com/davidsmonteiro/ha-autogen"
 arch:
@@ -16,18 +16,8 @@ panel_title: "AutoGen"
 map:
   - config:rw
 options:
-  llm_backend: "ollama"
-  llm_api_url: "http://homeassistant.local:11434"
-  llm_api_key: ""
-  llm_model: ""
   auto_backup: true
   max_context_entities: 200
-  reasoning_model: ""
 schema:
-  llm_backend: "list(ollama|anthropic|openai_compat)"
-  llm_api_url: "url"
-  llm_api_key: "password"
-  llm_model: "str?"
   auto_backup: "bool"
   max_context_entities: "int(50,500)"
-  reasoning_model: "str?"
