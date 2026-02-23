@@ -672,7 +672,7 @@
             })
             .catch(function() {
                 btn.textContent = label; btn.disabled = false;
-                status.innerHTML = '<div class="error-msg" style="padding:0.3rem 0.6rem;margin:0">Network error</div>';
+                status.innerHTML = '<div class="error-msg" style="padding:0.3rem 0.6rem;margin:0">Network error — check your connection and HA ingress proxy.</div>';
             });
         }
 
@@ -839,14 +839,14 @@
             }
 
             btn.disabled = true; loading.classList.add("active"); results.innerHTML = "";
-            fetch(ingressPath + "/api/review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+            llmFetch(ingressPath + "/api/review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
             .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
             .then(function(res) {
                 loading.classList.remove("active"); btn.disabled = false;
                 if (!res.ok) { results.innerHTML = '<div class="error-msg">' + escapeHtml(res.data.detail || "Review failed") + '</div>'; return; }
                 renderReviewResults(res.data);
             })
-            .catch(function(e) { loading.classList.remove("active"); btn.disabled = false; results.innerHTML = '<div class="error-msg">Network error</div>'; });
+            .catch(function(e) { loading.classList.remove("active"); btn.disabled = false; results.innerHTML = '<div class="error-msg">' + networkErrorMsg(e) + '</div>'; });
         }
 
         // -- Explore tab --
@@ -858,7 +858,7 @@
             var domain = document.getElementById("explore-domain").value;
 
             btn.disabled = true; loading.classList.add("active"); results.innerHTML = "";
-            fetch(ingressPath + "/api/explore", {
+            llmFetch(ingressPath + "/api/explore", {
                 method: "POST", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ focus_area: area || null, focus_domain: domain || null })
             })
@@ -868,7 +868,7 @@
                 if (!res.ok) { results.innerHTML = '<div class="error-msg">' + escapeHtml(res.data.detail || "Explore failed") + '</div>'; return; }
                 renderExploreResults(res.data);
             })
-            .catch(function(e) { loading.classList.remove("active"); btn.disabled = false; results.innerHTML = '<div class="error-msg">Network error</div>'; });
+            .catch(function(e) { loading.classList.remove("active"); btn.disabled = false; results.innerHTML = '<div class="error-msg">' + networkErrorMsg(e) + '</div>'; });
         }
 
         function renderExploreResults(data) {
@@ -1079,7 +1079,7 @@
             previousAnsweredQuestions = {};
             document.getElementById("plan-container").innerHTML = "";
             document.getElementById("output").innerHTML = "";
-            fetch(ingressPath + "/api/plan", {
+            llmFetch(ingressPath + "/api/plan", {
                 method: "POST", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ request: request, mode: currentGenMode })
             })
@@ -1092,7 +1092,7 @@
                 currentPlanContext = res.data.context_block;
                 renderPlanPanel(res.data);
             })
-            .catch(function() { btn.disabled = false; spinner.style.display = "none"; document.getElementById("plan-container").innerHTML = '<div class="error-msg">Network error</div>'; });
+            .catch(function(e) { btn.disabled = false; spinner.style.display = "none"; document.getElementById("plan-container").innerHTML = '<div class="error-msg">' + networkErrorMsg(e) + '</div>'; });
         }
 
         function renderPlanPanel(data) {
@@ -1407,7 +1407,7 @@
             var spinner = document.getElementById("gen-spinner");
             btn.disabled = true; btn.textContent = "Generating..."; spinner.style.display = "block";
 
-            fetch(ingressPath + "/api/plan/generate", {
+            llmFetch(ingressPath + "/api/plan/generate", {
                 method: "POST", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     plan_id: currentPlanId, original_request: request,
@@ -1422,7 +1422,7 @@
                 document.getElementById("plan-container").innerHTML = "";
                 renderGenerateResult(res.data);
             })
-            .catch(function() { btn.disabled = false; btn.textContent = "Approve & Generate"; spinner.style.display = "none"; document.getElementById("output").innerHTML = '<div class="error-msg">Network error</div>'; });
+            .catch(function(e) { btn.disabled = false; btn.textContent = "Approve & Generate"; spinner.style.display = "none"; document.getElementById("output").innerHTML = '<div class="error-msg">' + networkErrorMsg(e) + '</div>'; });
         }
 
         function refinePlan() {
@@ -1440,7 +1440,7 @@
             var spinner = document.getElementById("gen-spinner");
             btn.disabled = true; btn.textContent = "Refining..."; spinner.style.display = "block";
 
-            fetch(ingressPath + "/api/plan", {
+            llmFetch(ingressPath + "/api/plan", {
                 method: "POST", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     request: request, mode: currentGenMode,
@@ -1457,7 +1457,7 @@
                 if (res.data.context_block) currentPlanContext = res.data.context_block;
                 renderPlanPanel(res.data);
             })
-            .catch(function() { btn.disabled = false; btn.textContent = "Refine Plan"; spinner.style.display = "none"; });
+            .catch(function(e) { btn.disabled = false; btn.textContent = "Refine Plan"; spinner.style.display = "none"; document.getElementById("plan-container").innerHTML += '<div class="error-msg">' + networkErrorMsg(e) + '</div>'; });
         }
 
         function cancelPlan() {
@@ -1684,6 +1684,20 @@
             var div = document.createElement("div");
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function llmFetch(url, options) {
+            // Wrapper for LLM-calling fetches with a 5 minute timeout
+            var controller = new AbortController();
+            var timeoutId = setTimeout(function() { controller.abort(); }, 300000);
+            options = options || {};
+            options.signal = controller.signal;
+            return fetch(url, options).finally(function() { clearTimeout(timeoutId); });
+        }
+
+        function networkErrorMsg(e) {
+            if (e && e.name === "AbortError") return "Request timed out — the LLM took too long to respond. Try a simpler prompt or a faster model.";
+            return "Network error — check your connection and HA ingress proxy.";
         }
 
         function buildTokenMeta(data) {
